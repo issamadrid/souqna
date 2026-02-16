@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>سوقنا - Souqna</title>
+    <meta name="description" content="منصة التجارة الإلكترونية المتكاملة">
+    <meta name="theme-color" content="#1e293b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="https://via.placeholder.com/192/1e293b/ffffff?text=S">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%231e293b'/%3E%3Ctext x='50' y='65' font-size='50' text-anchor='middle' fill='white' font-family='Arial'%3ES%3C/text%3E%3C/svg%3E">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        * { font-family: 'Tajawal', sans-serif; }
+        body { background-color: #f8fafc; margin: 0; padding: 0; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom, 20px); }
+        .hover-lift { transition: transform 0.2s, box-shadow 0.2s; }
+        .hover-lift:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
+        
+        #loader {
+            position: fixed; inset: 0;
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            z-index: 9999; transition: opacity 0.5s, visibility 0.5s;
+        }
+        #loader.hidden { opacity: 0; visibility: hidden; }
+        .loader-icon {
+            width: 80px; height: 80px; background: white;
+            border-radius: 20px; display: flex;
+            align-items: center; justify-content: center;
+            font-size: 40px; font-weight: bold; color: #1e293b;
+            animation: bounce 1s infinite;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        
+        .install-banner {
+            position: fixed; bottom: 100px; left: 50%;
+            transform: translateX(-50%) translateY(200px);
+            background: white; padding: 16px 24px;
+            border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            display: flex; align-items: center; gap: 16px;
+            z-index: 100; transition: transform 0.3s;
+            max-width: 90%; width: 400px;
+        }
+        .install-banner.show { transform: translateX(-50%) translateY(0); }
+        .product-card { transition: all 0.3s ease; }
+        .product-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out; }
+    </style>
+    
+    <script>window.process = { env: {} };</script>
+    <script type="importmap">
+    { "imports": { "react": "https://esm.sh/react@18.2.0", "react-dom": "https://esm.sh/react-dom@18.2.0", "react-dom/client": "https://esm.sh/react-dom@18.2.0/client", "react-router-dom": "https://esm.sh/react-router-dom@6.20.0" } }
+    </script>
+</head>
+<body>
+    <div id="loader">
+        <div class="loader-icon">S</div>
+        <p style="color: white; margin-top: 20px; font-size: 18px; font-weight: 500;">سوقنا</p>
+        <p style="color: rgba(255,255,255,0.6); font-size: 14px;">جاري التحميل...</p>
+    </div>
+
+    <div id="installBanner" class="install-banner">
+        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #1e293b, #334155); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 24px;">S</div>
+        <div style="flex: 1;">
+            <p style="margin: 0; font-weight: bold; color: #1e293b;">ثبت سوقنا على جهازك</p>
+            <p style="margin: 4px 0 0; font-size: 12px; color: #64748b;">وصول أسرع بدون متصفح</p>
+        </div>
+        <button id="installBtn" style="background: #1e293b; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer;">تثبيت</button>
+        <button id="dismissBtn" style="background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 20px;">×</button>
+    </div>
+
+    <div id="root"></div>
+
+    <script type="module">
+        const UserRole = { BUYER: 'BUYER', SELLER: 'SELLER', ADMIN: 'ADMIN' };
+        const CATEGORIES = ['الكل', 'إلكترونيات', 'ملابس وإكسسوارات', 'منزل ومطبخ', 'جمال وعناية'];
+        
+        const MOCK_PRODUCTS = [
+            { id: '1', name: 'ساعة ذكية متطورة', description: 'ساعة ذكية تدعم تتبع اللياقة البدنية والنبض مع شاشة أموليد.', price: 299, category: 'إلكترونيات', image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400', sellerId: 's1', stock: 15, rating: 4.5, reviewsCount: 120, reviews: [{ id: 'r1-1', author: 'علي', rating: 5, text: 'ممتازة وعملية جداً!', createdAt: '2023-11-01' }, { id: 'r1-2', author: 'فاطمة', rating: 4, text: 'تصميم أنيق.', createdAt: '2023-11-03' }] },
+            { id: '2', name: 'سماعات لاسلكية', description: 'استمتع بنقاء صوت استثنائي مع خاصية إلغاء الضجيج النشط.', price: 150, category: 'إلكترونيات', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400', sellerId: 's1', stock: 40, rating: 4.8, reviewsCount: 85, reviews: [{ id: 'r2-1', author: 'سارة', rating: 5, text: 'جودة الصوت خرافية!', createdAt: '2023-11-20' }] },
+            { id: '3', name: 'حقيبة ظهر عصرية', description: 'حقيبة متينة ومقاومة للماء تناسب العمل والرحلات.', price: 75, category: 'ملابس وإكسسوارات', image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400', sellerId: 's2', stock: 100, rating: 4.2, reviewsCount: 45, reviews: [{ id: 'r3-1', author: 'نورة', rating: 5, text: 'واسعة جداً!', createdAt: '2024-01-10' }] },
+            { id: '4', name: 'ماكينة قهوة احترافية', description: 'ابدأ صباحك بأفضل فنجان قهوة إسبريسو في المنزل.', price: 899, category: 'منزل ومطبخ', image: 'https://images.unsplash.com/photo-1517668808822-9ebb02f2a0e6?w=400', sellerId: 's2', stock: 8, rating: 4.9, reviewsCount: 210, reviews: [{ id: 'r4-1', author: 'محمد', rating: 5, text: 'تصنع قهوة مثل المقاهي!', createdAt: '2024-02-25' }] },
+            { id: '5', name: 'حذاء رياضي مريح', description: 'تصميم مريح يدعم القدم أثناء الركض والتمارين.', price: 120, category: 'ملابس وإكسسوارات', image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400', sellerId: 's1', stock: 25, rating: 4.4, reviewsCount: 60, reviews: [{ id: 'r5-1', author: 'بدر', rating: 5, text: 'مريح جداً للجري.', createdAt: '2024-03-15' }] },
+            { id: '6', name: 'آيباد برو 11 بوصة', description: 'جهاز لوحي احترافي للإنتاجية والإبداع.', price: 3200, category: 'إلكترونيات', image: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400', sellerId: 's1', stock: 5, rating: 4.9, reviewsCount: 340, reviews: [{ id: 'r6-1', author: 'خالد', rating: 5, text: 'أفضل جهاز للعمل.', createdAt: '2024-01-20' }] }
+        ];
+
+        const MOCK_USERS = [
+            { id: 'admin1', name: 'المدير العام', email: 'admin@souqna.com', password: 'admin123', role: UserRole.ADMIN, avatar: 'https://i.pravatar.cc/150?u=admin', createdAt: '2023-01-01' },
+            { id: 's1', name: 'تاجر التقنية', email: 'tech@souqna.com', password: 'seller123', role: UserRole.SELLER, avatar: 'https://i.pravatar.cc/150?u=s1', banner: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1200', bio: 'متجر متخصص في أحدث التقنيات.', createdAt: '2023-10-01' },
+            { id: 's2', name: 'متجر الأناقة', email: 'fashion@souqna.com', password: 'seller123', role: UserRole.SELLER, avatar: 'https://i.pravatar.cc/150?u=s2', banner: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200', bio: 'كل ما هو جديد في عالم الموضة.', createdAt: '2024-01-01' },
+            { id: 'u1', name: 'أحمد محمد', email: 'ahmed@example.com', password: 'user123', role: UserRole.BUYER, avatar: 'https://i.pravatar.cc/150?u=u1', createdAt: '2024-02-15' }
+        ];
+
+        import React, { useState, useMemo, useEffect } from 'react';
+        import ReactDOM from 'react-dom/client';
+        import { HashRouter, Routes, Route, Link, Navigate, useLocation, useParams } from 'react-router-dom';
+
+        const translations = {
+            ar: { home: 'الرئيسية', sellerPanel: 'لوحة البائع', adminPanel: 'لوحة الإدارة', login: 'دخول', logout: 'خروج', cart: 'السلة', profile: 'حسابي', search: 'بحث', footerDesc: 'منصتك المتكاملة للبيع والشراء في الوطن العربي.', rights: 'جميع الحقوق محفوظة', installApp: 'تثبيت التطبيق', sellOnSouqna: 'تسجيل كبائع', addToCart: 'أضف للسلة', checkout: 'إتمام الشراء', emptyCart: 'السلة فارغة', continueShopping: 'مواصلة التسوق', total: 'المجموع', confirmOrder: 'تأكيد الطلب', address: 'العنوان', phone: 'رقم الهاتف', orderConfirmed: 'تم تأكيد طلبك!', demoAccounts: 'حسابات تجريبية:', categories: 'الأقسام', discover: 'اكتشف منتجات مميزة', shopDesc: 'تسوق من أفضل البائعين في الوطن العربي' },
+            en: { home: 'Home', sellerPanel: 'Seller Panel', adminPanel: 'Admin Panel', login: 'Login', logout: 'Logout', cart: 'Cart', profile: 'Profile', search: 'Search', footerDesc: 'Your integrated platform for buying and selling.', rights: 'All rights reserved', installApp: 'Install App', sellOnSouqna: 'Sell on Souqna', addToCart: 'Add to Cart', checkout: 'Checkout', emptyCart: 'Your cart is empty', continueShopping: 'Continue Shopping', total: 'Total', confirmOrder: 'Confirm Order', address: 'Address', phone: 'Phone Number', orderConfirmed: 'Order Confirmed!', demoAccounts: 'Demo Accounts:', categories: 'Categories', discover: 'Discover Featured Products', shopDesc: 'Shop from the best sellers' }
+        };
+
+        function HomePage({ addToCart, language, formatPrice }) {
+            const [selectedCategory, setSelectedCategory] = useState('الكل');
+            const t = translations[language];
+            const filtered = selectedCategory === 'الكل' ? MOCK_PRODUCTS : MOCK_PRODUCTS.filter(p => p.category === selectedCategory);
+
+            return React.createElement('div', { className: 'space-y-6 animate-fade-in' },
+                React.createElement('div', { className: 'bg-gradient-to-br from-slate-800 via-slate-900 to-black rounded-3xl p-8 text-white relative overflow-hidden' },
+                    React.createElement('div', { className: 'absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2' }),
+                    React.createElement('div', { className: 'relative z-10' },
+                        React.createElement('h1', { className: 'text-3xl md:text-4xl font-bold mb-3' }, t.discover),
+                        React.createElement('p', { className: 'opacity-80 text-lg' }, t.shopDesc)
+                    )
+                ),
+                React.createElement('div', { className: 'flex gap-3 overflow-x-auto pb-2 scrollbar-hide' },
+                    CATEGORIES.map(cat => React.createElement('button', {
+                        key: cat, onClick: () => setSelectedCategory(cat),
+                        className: `px-5 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-all ${selectedCategory === cat ? 'bg-slate-800 text-white shadow-lg' : 'bg-white text-gray-600 border border-gray-200 hover:border-slate-800'}`
+                    }, cat))
+                ),
+                React.createElement('div', { className: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6' },
+                    filtered.map(product => React.createElement('div', {
+                        key: product.id, className: 'product-card bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden group'
+                    },
+                        React.createElement(Link, { to: `/product/${product.id}`, className: 'relative h-56 block overflow-hidden' },
+                            React.createElement('img', { src: product.image, alt: product.name, className: 'w-full h-full object-cover group-hover:scale-110 transition duration-500' }),
+                            product.stock < 10 && React.createElement('span', { className: 'absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full' }, language === 'ar' ? 'كمية محدودة' : 'Low Stock')
+                        ),
+                        React.createElement('div', { className: 'p-5' },
+                            React.createElement('div', { className: 'text-xs text-gray-500 mb-1 font-medium' }, product.category),
+                            React.createElement(Link, { to: `/product/${product.id}` }, React.createElement('h3', { className: 'font-bold text-slate-800 mb-2 text-lg hover:text-slate-600 transition' }, product.name)),
+                            React.createElement('div', { className: 'flex items-center gap-1 mb-3' },
+                                React.createElement('div', { className: 'flex text-amber-400 text-sm' }, [...Array(5)].map((_, i) => React.createElement('i', { key: i, className: `fas fa-star ${i < Math.floor(product.rating) ? '' : 'text-gray-300'}` }))),
+                                React.createElement('span', { className: 'text-sm text-gray-400' }, `(${product.reviewsCount})`)
+                            ),
+                            React.createElement('div', { className: 'flex items-center justify-between' },
+                                React.createElement('span', { className: 'text-xl font-bold text-slate-800' }, formatPrice(product.price)),
+                                React.createElement('button', { onClick: () => addToCart(product), className: 'bg-slate-800 text-white w-12 h-12 rounded-xl flex items-center justify-center hover:bg-slate-700 transition hover:scale-105 active:scale-95' },
+                                    React.createElement('i', { className: 'fas fa-plus' })
+                                )
+                            )
+                        )
+                    ))
+                )
+            );
+        }
+
+        function ProductDetailPage({ addToCart, language, formatPrice }) {
+            const { id } = useParams();
+            const product = MOCK_PRODUCTS.find(p => p.id === id);
+            if (!product) return React.createElement('div', { className: 'text-center py-20 text-2xl text-gray-500' }, 'المنتج غير موجود');
+
+            return React.createElement('div', { className: 'max-w-5xl mx-auto animate-fade-in' },
+                React.createElement('div', { className: 'bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden' },
+                    React.createElement('div', { className: 'md:flex' },
+                        React.createElement('div', { className: 'md:w-1/2 h-80 md:h-auto relative' },
+                            React.createElement('img', { src: product.image, alt: product.name, className: 'w-full h-full object-cover' })
+                        ),
+                        React.createElement('div', { className: 'p-8 md:w-1/2 flex flex-col justify-center' },
+                            React.createElement('div', { className: 'text-sm text-slate-600 font-medium mb-2' }, product.category),
+                            React.createElement('h1', { className: 'text-3xl font-bold text-slate-800 mb-4' }, product.name),
+                            React.createElement('div', { className: 'flex items-center gap-2 mb-4' },
+                                React.createElement('div', { className: 'flex text-amber-400' }, [...Array(5)].map((_, i) => React.createElement('i', { key: i, className: `fas fa-star ${i < Math.floor(product.rating) ? '' : 'text-gray-300'}` }))),
+                                React.createElement('span', { className: 'text-gray-500' }, `(${product.reviewsCount} ${language === 'ar' ? 'تقييم' : 'reviews'})`)
+                            ),
+                            React.createElement('p', { className: 'text-gray-600 mb-6 leading-relaxed text-lg' }, product.description),
+                            React.createElement('div', { className: 'flex items-center justify-between mb-8' },
+                                React.createElement('span', { className: 'text-4xl font-bold text-slate-800' }, formatPrice(product.price)),
+                                React.createElement('span', { className: `px-4 py-2 rounded-full text-sm font-bold ${product.stock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}` },
+                                    product.stock > 0 ? `${language === 'ar' ? 'متوفر' : 'In Stock'} (${product.stock})` : language === 'ar' ? 'نفذت الكمية' : 'Out of Stock')
+                            ),
+                            React.createElement('button', { onClick: () => addToCart(product), disabled: product.stock === 0, className: 'w-full bg-slate-800 text-white py-4 rounded-2xl font-bold text-lg hover:bg-slate-700 transition disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2' },
+                                React.createElement('i', { className: 'fas fa-shopping-cart' }),
+                                language === 'ar' ? 'أضف إلى السلة' : 'Add to Cart'
+                            )
+                        )
+                    ),
+                    React.createElement('div', { className: 'border-t border-gray-100 p-8' },
+                        React.createElement('h3', { className: 'font-bold text-xl mb-6' }, language === 'ar' ? 'تقييمات العملاء' : 'Customer Reviews'),
+                        React.createElement('div', { className: 'grid md:grid-cols-2 gap-4' },
+                            product.reviews?.map(review => React.createElement('div', { key: review.id, className: 'bg-gray-50 rounded-2xl p-5' },
+                                React.createElement('div', { className: 'flex items-center justify-between mb-3' },
+                                    React.createElement('div', { className: 'flex items-center gap-3' },
+                                        React.createElement('div', { className: 'w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center text-white font-bold' }, review.author[0]),
+                                        React.createElement('span', { className: 'font-bold' }, review.author)
+                                    ),
+                                    React.createElement('div', { className: 'flex text-amber-400 text-sm' }, [...Array(5)].map((_, i) => React.createElement('i', { key: i, className: `fas fa-star ${i < review.rating ? '' : 'text-gray-300'}` })))
+                                ),
+                                React.createElement('p', { className: 'text-gray-600' }, review.text)
+                            ))
+                        )
+                    )
+                )
+            );
+        }
+
+        function CartPage({ cart, removeFromCart, updateQuantity, language, formatPrice }) {
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const t = translations[language];
+
+            if (cart.length === 0) {
+                return React.createElement('div', { className: 'text-center py-20 animate-fade-in' },
+                    React.createElement('div', { className: 'w-32 h-32 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6' },
+                        React.createElement('i', { className: 'fas fa-shopping-cart text-5xl text-gray-300' })
+                    ),
+                    React.createElement('h2', { className: 'text-2xl font-bold text-gray-600 mb-4' }, t.emptyCart),
+                    React.createElement(Link, { to: '/', className: 'bg-slate-800 text-white px-8 py-3 rounded-xl font-bold inline-block hover:bg-slate-700 transition' }, t.continueShopping)
+                );
+            }
+
+            return React.createElement('div', { className: 'max-w-3xl mx-auto animate-fade-in' },
+                React.createElement('h1', { className: 'text-2xl font-bold mb-6' }, t.cart),
+                React.createElement('div', { className: 'space-y-4 mb-6' },
+                    cart.map(item => React.createElement('div', { key: item.id, className: 'bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex gap-5 items-center' },
+                        React.createElement('img', { src: item.image, alt: item.name, className: 'w-24 h-24 rounded-xl object-cover' }),
+                        React.createElement('div', { className: 'flex-1' },
+                            React.createElement('h3', { className: 'font-bold text-slate-800 mb-1 text-lg' }, item.name),
+                            React.createElement('p', { className: 'text-slate-600 font-bold mb-3' }, formatPrice(item.price)),
+                            React.createElement('div', { className: 'flex items-center gap-3 bg-gray-50 w-fit rounded-xl p-1' },
+                                React.createElement('button', { onClick: () => updateQuantity(item.id, item.quantity - 1), className: 'w-10 h-10 rounded-lg bg-white shadow flex items-center justify-center hover:bg-gray-50 transition' }, '-'),
+                                React.createElement('span', { className: 'font-bold w-8 text-center' }, item.quantity),
+                                React.createElement('button', { onClick: () => updateQuantity(item.id, item.quantity + 1), className: 'w-10 h-10 rounded-lg bg-white shadow flex items-center justify-center hover:bg-gray-50 transition' }, '+')
+                            )
+                        ),
+                        React.createElement('div', { className: 'text-right' },
+                            React.createElement('p', { className: 'font-bold text-xl text-slate-800 mb-2' }, formatPrice(item.price * item.quantity)),
+                            React.createElement('button', { onClick: () => removeFromCart(item.id), className: 'text-red-500 hover:bg-red-50 px-4 py-2 rounded-lg transition flex items-center gap-2' },
+                                React.createElement('i', { className: 'fas fa-trash' }), language === 'ar' ? 'حذف' : 'Remove'
+                            )
+                        )
+                    ))
+                ),
+                React.createElement('div', { className: 'bg-white rounded-2xl p-6 shadow-sm border border-gray-100 sticky bottom-24' },
+                    React.createElement('div', { className: 'flex justify-between items-center mb-4' },
+                        React.createElement('span', { className: 'text-gray-600 text-lg' }, t.total),
+                        React.createElement('span', { className: 'text-3xl font-bold text-slate-800' }, formatPrice(total))
+                    ),
+                    React.createElement(Link, { to: '/checkout', className: 'block w-full bg-slate-800 text-white text-center py-4 rounded-2xl font-bold text-lg hover:bg-slate-700 transition' }, t.checkout)
+                )
+            );
+        }
+
+        function AuthPage({ onLogin, language, initialIsLogin = true, initialRole = UserRole.BUYER }) {
+            const [isLogin, setIsLogin] = useState(initialIsLogin);
+            const [email, setEmail] = useState('');
+            const [password, setPassword] = useState('');
+            const [name, setName] = useState('');
+            const [error, setError] = useState('');
+            const t = translations[language];
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                setError('');
+                if (isLogin) {
+                    const user = MOCK_USERS.find(u => u.email === email && u.password === password);
+                    if (user) onLogin(user);
+                    else setError(language === 'ar' ? 'البريد أو كلمة المرور غير صحيحة' : 'Invalid credentials');
+                } else {
+                    onLogin({ id: 'new_' + Date.now(), name: name || email.split('@')[0], email, password, role: initialRole, avatar: `https://i.pravatar.cc/150?u=${Date.now()}`, createdAt: new Date().toISOString() });
+                }
+            };
+
+            return React.createElement('div', { className: 'max-w-md mx-auto mt-10 animate-fade-in' },
+                React.createElement('div', { className: 'bg-white rounded-3xl shadow-lg border border-gray-100 p-8' },
+                    React.createElement('div', { className: 'text-center mb-8' },
+                        React.createElement('div', { className: 'w-16 h-16 bg-slate-800 rounded-2xl mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold' }, 'S'),
+                        React.createElement('h1', { className: 'text-2xl font-bold' }, isLogin ? t.login : (language === 'ar' ? 'إنشاء حساب' : 'Sign Up'))
+                    ),
+                    error && React.createElement('div', { className: 'bg-red-50 text-red-600 p-4 rounded-xl mb-4 text-sm text-center font-medium' }, error),
+                    React.createElement('form', { onSubmit: handleSubmit, className: 'space-y-4' },
+                        !isLogin && React.createElement('div', null,
+                            React.createElement('label', { className: 'block text-sm font-bold text-gray-700 mb-2' }, language === 'ar' ? 'الاسم' : 'Name'),
+                            React.createElement('input', { type: 'text', value: name, onChange: e => setName(e.target.value), className: 'w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-slate-800 focus:outline-none transition', placeholder: language === 'ar' ? 'أدخل اسمك' : 'Enter your name' })
+                        ),
+                        React.createElement('div', null,
+                            React.createElement('label', { className: 'block text-sm font-bold text-gray-700 mb-2' }, 'Email'),
+                            React.createElement('input', { type: 'email', value: email, onChange: e => setEmail(e.target.value), className: 'w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-slate-800 focus:outline-none transition', placeholder: 'email@example.com', required: true })
+                        ),
+                        React.createElement('div', null,
+                            React.createElement('label', { className: 'block text-sm font-bold text-gray-700 mb-2' }, language === 'ar' ? 'كلمة المرور' : 'Password'),
+                            React.createElement('input', { type: 'password', value: password, onChange: e => setPassword(e.target.value), className: 'w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-slate-800 focus:outline-none transition', placeholder: '••••••••', required: true })
+                        ),
+                        React.createElement('button', { type: 'submit', className: 'w-full bg-slate-800 text-white py-4 rounded-xl font-bold text-lg hover:bg-slate-700 transition mt-2' }, isLogin ? t.login : (language === 'ar' ? 'إنشاء حساب' : 'Sign Up'))
+                    ),
+                    React.createElement('div', { className: 'mt-6 text-center' },
+                        React.createElement('button', { onClick: () => setIsLogin(!isLogin), className: 'text-slate-800 text-sm font-bold hover:underline' },
+                            isLogin ? (language === 'ar' ? 'ليس لديك حساب؟ سجل الآن' : 'Don\'t have an account? Sign up') : (language === 'ar' ? 'لديك حساب؟ سجل دخول' : 'Already have an account? Login'))
+                    ),
+                    isLogin && React.createElement('div', { className: 'mt-6 p-4 bg-gray-50 rounded-xl text-xs text-gray-600 space-y-2' },
+                        React.createElement('p', { className: 'font-bold text-sm mb-2' }, t.demoAccounts),
+                        React.createElement('div', { className: 'grid grid-cols-1 gap-1' },
+                            React.createElement('div', { className: 'flex justify-between' }, React.createElement('span', null, 'Admin:'), React.createElement('span', { className: 'font-mono' }, 'admin@souqna.com / admin123')),
+                            React.createElement('div', { className: 'flex justify-between' }, React.createElement('span', null, 'Seller:'), React.createElement('span', { className: 'font-mono' }, 'tech@souqna.com / seller123')),
+                            React.createElement('div', { className: 'flex justify-between' }, React.createElement('span', null, 'Buyer:'), React.createElement('span', { className: 'font-mono' }, 'ahmed@example.com / user123'))
+                        )
+                    )
+                )
+            );
+        }
+
+        function CheckoutPage({ cart, clearCart, user, language, formatPrice }) {
+            const [address, setAddress] = useState('');
+            const [phone, setPhone] = useState('');
+            const [orderPlaced, setOrderPlaced] = useState(false);
+            const t = translations[language];
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                setOrderPlaced(true);
+                clearCart();
+            };
+
+            if (orderPlaced) {
+                return React.createElement('div', { className: 'max-w-md mx-auto text-center py-20 animate-fade-in' },
+                    React.createElement('div', { className: 'w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce' },
+                        React.createElement('i', { className: 'fas fa-check text-4xl text-green-600' })
+                    ),
+                    React.createElement('h2', { className: 'text-3xl font-bold mb-4 text-slate-800' }, t.orderConfirmed),
+                    React.createElement('p', { className: 'text-gray-600 mb-8 text-lg' }, language === 'ar' ? 'سنقوم بالتواصل معك قريباً' : 'We will contact you soon'),
+                    React.createElement(Link, { to: '/', className: 'bg-slate-800 text-white px-8 py-4 rounded-2xl font-bold text-lg inline-block hover:bg-slate-700 transition' }, language === 'ar' ? 'العودة للرئيسية' : 'Back to Home')
+                );
+            }
+
+            return React.createElement('div', { className: 'max-w-2xl mx-auto animate-fade-in' },
+                React.createElement('h1', { className: 'text-2xl font-bold mb-6' }, t.checkout),
+                React.createElement('div', { className: 'bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-6' },
+                    React.createElement('h3', { className: 'font-bold text-lg mb-4' }, language === 'ar' ? 'ملخص الطلب' : 'Order Summary'),
+                    cart.map(item => React.createElement('div', { key: item.id, className: 'flex justify-between py-3 border-b border-gray-50 last:border-0' },
+                        React.createElement('span', { className: 'text-gray-600' }, `${item.name} × ${item.quantity}`),
+                        React.createElement('span', { className: 'font-bold' }, formatPrice(item.price * item.quantity))
+                    )),
+                    React.createElement('div', { className: 'flex justify-between pt-4 mt-4 border-t border-gray-200' },
+                        React.createElement('span', { className: 'font-bold text-lg' }, t.total),
+                        React.createElement('span', { className: 'text-2xl font-bold text-slate-800' }, formatPrice(total))
+                    )
+                ),
+                React.createElement('form', { onSubmit: handleSubmit, className: 'bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-4' },
+                    React.createElement('h3', { className: 'font-bold text-lg mb-2' }, language === 'ar' ? 'معلومات التوصيل' : 'Delivery Information'),
+                    React.createElement('div', null,
+                        React.createElement('label', { className: 'block text-sm font-bold text-gray-700 mb-2' }, t.address),
+                        React.createElement('textarea', { value: address, onChange: e => setAddress(e.target.value), className: 'w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-slate-800 focus:outline-none transition', rows: 3, required: true })
+                    ),
+                    React.createElement('div', null,
+                        React.createElement('label', { className: 'block text-sm font-bold text-gray-700 mb-2' }, t.phone),
+                        React.createElement('input', { type: 'tel', value: phone, onChange: e => setPhone(e.target.value), className: 'w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-slate-800 focus:outline-none transition', required: true })
+                    ),
+                    React.createElement('button', { type: 'submit', className: 'w-full bg-slate-800 text-white py-4 rounded-2xl font-bold text-lg hover:bg-slate-700 transition mt-4' }, t.confirmOrder)
+                )
+            );
+        }
+
+        function SellerDashboard({ user, language, formatPrice }) {
+            const [activeTab, setActiveTab] = useState('products');
+            const sellerProducts = MOCK_PRODUCTS.filter(p => p.sellerId === user?.id);
+            
+            return React.createElement('div', { className: 'max-w-6xl mx-auto animate-fade-in' },
+                React.createElement('div', { className: 'bg-white rounded-3xl shadow-sm border border-gray-100 p-6 mb-6' },
+                    React.createElement('div', { className: 'flex items-center gap-4' },
+                        React.createElement('img', { src: user?.avatar, alt: '', className: 'w-20 h-20 rounded-full border-4 border-gray-50' }),
+                        React.createElement('div', null,
+                            React.createElement('h1', { className: 'text-2xl font-bold text-slate-800' }, user?.name),
+                            React.createElement('p', { className: 'text-gray-500' }, user?.bio || (language === 'ar' ? 'بائع في سوقنا' : 'Seller on Souqna'))
+                        )
+                    )
+                ),
+                React.createElement('div', { className: 'flex gap-2 mb-6 border-b border-gray-200' },
+                    ['products', 'orders', 'stats'].map(tab => React.createElement('button', {
+                        key: tab, onClick: () => setActiveTab(tab), className: `pb-3 px-6 font-bold capitalize transition ${activeTab === tab ? 'border-b-2 border-slate-800 text-slate-800' : 'text-gray-500 hover:text-gray-700'}`
+                    }, language === 'ar' ? (tab === 'products' ? 'المنتجات' : tab === 'orders' ? 'الطلبات' : 'الإحصائيات') : tab))
+                ),
+                activeTab === 'products' && React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' },
+                    sellerProducts.map(product => React.createElement('div', { key: product.id, className: 'bg-white rounded-2xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition' },
+                        React.createElement('img', { src: product.image, alt: '', className: 'w-full h-40 object-cover rounded-xl mb-4' }),
+                        React.createElement('h3', { className: 'font-bold text-lg mb-1' }, product.name),
+                        React.createElement('p', { className: 'text-gray-500 mb-4' }, `${formatPrice(product.price)} • ${language === 'ar' ? 'المخزون:' : 'Stock:'} ${product.stock}`),
+                        React.createElement('div', { className: 'flex gap-3' },
+                            React.createElement('button', { className: 'flex-1 bg-slate-100 text-slate-800 py-2.5 rounded-xl font-bold hover:bg-slate-200 transition' }, language === 'ar' ? 'تعديل' : 'Edit'),
+                            React.createElement('button', { className: 'flex-1 bg-red-50 text-red-600 py-2.5 rounded-xl font-bold hover:bg-red-100 transition' }, language === 'ar' ? 'حذف' : 'Delete')
+                        )
+                    )),
+                    React.createElement('button', { className: 'border-2 border-dashed border-gray-300 rounded-2xl p-5 flex flex-col items-center justify-center text-gray-400 hover:border-slate-800 hover:text-slate-800 transition min-h-[280px] group' },
+                        React.createElement('div', { className: 'w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mb-3 group-hover:bg-slate-100 transition' },
+                            React.createElement('i', { className: 'fas fa-plus text-2xl' })
+                        ),
+                        React.createElement('span', { className: 'font-bold text-lg' }, language === 'ar' ? 'إضافة منتج جديد' : 'Add New Product')
+                    )
+                ),
+                activeTab === 'orders' && React.createElement('div', { className: 'bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center text-gray-500 text-lg' }, language === 'ar' ? 'لا توجد طلبات جديدة' : 'No new orders'),
+                activeTab === 'stats' && React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-3 gap-6' },
+                    [{ value: '12', label: language === 'ar' ? 'إجمالي المبيعات' : 'Total Sales', icon: 'fa-shopping-bag', color: 'blue' }, { value: formatPrice(4500), label: language === 'ar' ? 'الإيرادات' : 'Revenue', icon: 'fa-money-bill-wave', color: 'green' }, { value: '4.8', label: language === 'ar' ? 'التقييم' : 'Rating', icon: 'fa-star', color: 'amber' }].map((stat, i) => React.createElement('div', { key: i, className: 'bg-white rounded-2xl p-8 shadow-sm border border-gray-100 text-center hover:shadow-md transition' },
+                        React.createElement('div', { className: `w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center text-2xl ${stat.color === 'blue' ? 'bg-blue-100 text-blue-600' : stat.color === 'green' ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'}` },
+                            React.createElement('i', { className: `fas ${stat.icon}` })
+                        ),
+                        React.createElement('div', { className: 'text-3xl font-bold text-slate-800 mb-1' }, stat.value),
+                        React.createElement('div', { className: 'text-gray-500' }, stat.label)
+                    ))
+                )
+            );
+        }
+
+        function AdminDashboard({ user, language, formatPrice }) {
+            const [activeTab, setActiveTab] = useState('users');
+            
+            return React.createElement('div', { className: 'max-w-6xl mx-auto animate-fade-in' },
+                React.createElement('h1', { className: 'text-2xl font-bold mb-6' }, language === 'ar' ? 'لوحة الإدارة' : 'Admin Dashboard'),
+                React.createElement('div', { className: 'flex gap-2 mb-6 border-b border-gray-200' },
+                    ['users', 'products', 'withdrawals'].map(tab => React.createElement('button', {
+                        key: tab, onClick: () => setActiveTab(tab), className: `pb-3 px-6 font-bold capitalize transition ${activeTab === tab ? 'border-b-2 border-slate-800 text-slate-800' : 'text-gray-500 hover:text-gray-700'}`
+                    }, language === 'ar' ? (tab === 'users' ? 'المستخدمين' : tab === 'products' ? 'المنتجات' : 'طلبات السحب') : tab))
+                ),
+                activeTab === 'users' && React.createElement('div', { className: 'bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden' },
+                    React.createElement('table', { className: 'w-full' },
+                        React.createElement('thead', { className: 'bg-gray-50' },
+                            React.createElement('tr', null,
+                                React.createElement('th', { className: 'px-6 py-4 text-right font-bold text-gray-600' }, language === 'ar' ? 'المستخدم' : 'User'),
+                                React.createElement('th', { className: 'px-6 py-4 text-right font-bold text-gray-600' }, language === 'ar' ? 'الدور' : 'Role'),
+                                React.createElement('th', { className: 'px-6 py-4 text-right font-bold text-gray-600' }, language === 'ar' ? 'تاريخ التسجيل' : 'Joined')
+                            )
+                        ),
+                        React.createElement('tbody', null,
+                            MOCK_USERS.map(u => React.createElement('tr', { key: u.id, className: 'border-t border-gray-100 hover:bg-gray-50 transition' },
+                                React.createElement('td', { className: 'px-6 py-4' },
+                                    React.createElement('div', { className: 'flex items-center gap-4' },
+                                        React.createElement('img', { src: u.avatar, alt: '', className: 'w-12 h-12 rounded-full' }),
+                                        React.createElement('div', null,
+                                            React.createElement('div', { className: 'font-bold text-slate-800' }, u.name),
+                                            React.createElement('div', { className: 'text-sm text-gray-500' }, u.email)
+                                        )
+                                    )
+                                ),
+                                React.createElement('td', { className: 'px-6 py-4' },
+                                    React.createElement('span', { className: `px-3 py-1.5 rounded-full text-xs font-bold ${u.role === UserRole.ADMIN ? 'bg-purple-100 text-purple-600' : u.role === UserRole.SELLER ? 'bg-blue-100 text-blue-600' : 'bg-green-100 text-green-600'}` }, u.role)
+                                ),
+                                React.createElement('td', { className: 'px-6 py-4 text-gray-500' }, new Date(u.createdAt).toLocaleDateString())
+                            ))
+                        )
+                    )
+                ),
+                activeTab === 'products' && React.createElement('div', { className: 'bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden' },
+                    React.createElement('table', { className: 'w-full' },
+                        React.createElement('thead', { className: 'bg-gray-50' },
+                            React.createElement('tr', null,
+                                React.createElement('th', { className: 'px-6 py-4 text-right font-bold text-gray-600' }, language === 'ar' ? 'المنتج' : 'Product'),
+                                React.createElement('th', { className: 'px-6 py-4 text-right font-bold text-gray-600' }, language === 'ar' ? 'البائع' : 'Seller'),
+                                React.createElement('th', { className: 'px-6 py-4 text-right font-bold text-gray-600' }, language === 'ar' ? 'السعر' : 'Price')
+                            )
+                        ),
+                        React.createElement('tbody', null,
+                            MOCK_PRODUCTS.map(p => React.createElement('tr', { key: p.id, className: 'border-t border-gray-100 hover:bg-gray-50 transition' },
+                                React.createElement('td', { className: 'px-6 py-4' },
+                                    React.createElement('div', { className: 'flex items-center gap-4' },
+                                        React.createElement('img', { src: p.image, alt: '', className: 'w-14 h-14 rounded-xl object-cover' }),
+                                        React.createElement('span', { className: 'font-bold text-slate-800' }, p.name)
+                                    )
+                                ),
+                                React.createElement('td', { className: 'px-6 py-4 text-gray-500' }, p.sellerId),
+                                React.createElement('td', { className: 'px-6 py-4 font-bold text-slate-800' }, formatPrice(p.price))
+                            ))
+                        )
+                    )
+                ),
+                activeTab === 'withdrawals' && React.createElement('div', { className: 'text-center py-16 text-gray-500 bg-white rounded-2xl shadow-sm border border-gray-100 text-lg' }, language === 'ar' ? 'لا توجد طلبات سحب جديدة' : 'No new withdrawal requests')
+            );
+        }
+
+        function ProfilePage({ user, onLogout, language }) {
+            const t = translations[language];
+            return React.createElement('div', { className: 'max-w-2xl mx-auto animate-fade-in' },
+                React.createElement('div', { className: 'bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-6' },
+                    React.createElement('div', { className: 'h-40 bg-gradient-to-r from-slate-800 to-slate-900' }),
+                    React.createElement('div', { className: 'px-8 pb-8' },
+                        React.createElement('div', { className: 'relative -top-16 mb-[-40px]' },
+                            React.createElement('img', { src: user?.avatar, alt: '', className: 'w-32 h-32 rounded-full border-4 border-white shadow-xl' })
+                        ),
+                        React.createElement('div', { className: 'mt-16' },
+                            React.createElement('h1', { className: 'text-2xl font-bold text-slate-800' }, user?.name),
+                            React.createElement('p', { className: 'text-gray-500 mb-3' }, user?.email),
+                            React.createElement('span', { className: `inline-block px-4 py-1.5 rounded-full text-sm font-bold ${user?.role === UserRole.ADMIN ? 'bg-purple-100 text-purple-600' : user?.role === UserRole.SELLER ? 'bg-blue-100 text-blue-600' : 'bg-green-100 text-green-600'}` }, user?.role)
+                        )
+                    )
+                ),
+                React.createElement('div', { className: 'bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-4' },
+                    React.createElement('h3', { className: 'font-bold text-lg mb-4' }, language === 'ar' ? 'معلومات الحساب' : 'Account Information'),
+                    React.createElement('div', { className: 'space-y-4' },
+                        React.createElement('div', { className: 'flex justify-between py-3 border-b border-gray-50' },
+                            React.createElement('span', { className: 'text-gray-500' }, language === 'ar' ? 'تاريخ الانضمام' : 'Member Since'),
+                            React.createElement('span', { className: 'font-bold text-slate-800' }, new Date(user?.createdAt).toLocaleDateString())
+                        ),
+                        React.createElement('div', { className: 'flex justify-between py-3 border-b border-gray-50' },
+                            React.createElement('span', { className: 'text-gray-500' }, t.phone),
+                            React.createElement('span', { className: 'font-bold text-slate-800' }, user?.phone || '-')
+                        )
+                    )
+                ),
+                React.createElement('button', { onClick: onLogout, className: 'w-full bg-red-50 text-red-600 py-4 rounded-2xl font-bold text-lg hover:bg-red-100 transition flex items-center justify-center gap-2' },
+                    React.createElement('i', { className: 'fas fa-sign-out-alt' }), t.logout
+                )
+            );
+        }
+
+        function DownloadPage({ language, deferredPrompt }) {
+            const t = translations[language];
+            const [installable, setInstallable] = useState(!!deferredPrompt);
+
+            useEffect(() => {
+                const handler = (e) => {
+                    e.preventDefault();
+                    setInstallable(true);
+                };
+                window.addEventListener('beforeinstallprompt', handler);
+                return () => window.removeEventListener('beforeinstallprompt', handler);
+            }, []);
+
+            const handleInstall = async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    await deferredPrompt.userChoice;
+                }
+            };
+
+            return React.createElement('div', { className: 'max-w-md mx-auto text-center py-16 animate-fade-in' },
+                React.createElement('div', { className: 'w-32 h-32 bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl mx-auto mb-8 flex items-center justify-center text-white text-5xl font-bold shadow-2xl' }, 'S'),
+                React.createElement('h1', { className: 'text-3xl font-bold mb-4 text-slate-800' }, language === 'ar' ? 'ثبت سوقنا على جهازك' : 'Install Souqna'),
+                React.createElement('p', { className: 'text-gray-600 mb-8 text-lg leading-relaxed' }, language === 'ar' ? 'ثبت التطبيق للوصول السريع وتجربة أفضل بدون الحاجة للمتصفح' : 'Install the app for quick access and better experience'),
+                installable ? React.createElement('button', { onClick: handleInstall, className: 'bg-slate-800 text-white px-10 py-4 rounded-2xl font-bold text-lg hover:bg-slate-700 transition shadow-lg flex items-center gap-3 mx-auto' },
+                    React.createElement('i', { className: 'fas fa-download' }), language === 'ar' ? 'تثبيت الآن' : 'Install Now'
+                ) : React.createElement('div', { className: 'bg-gray-50 p-6 rounded-2xl text-gray-600' },
+                    React.createElement('i', { className: 'fas fa-info-circle mb-2 text-2xl text-slate-400' }),
+                    React.createElement('p', null, language === 'ar' ? 'التطبيق مثبت بالفعل أو غير متاح على هذا الجهاز' : 'App already installed or not available on this device')
+                )
+            );
+        }
+
+        function StorePage({ language, formatPrice, addToCart }) {
+            const { id } = useParams();
+            const seller = MOCK_USERS.find(u => u.id === id && u.role === UserRole.SELLER);
+            const products = MOCK_PRODUCTS.filter(p => p.sellerId === id);
+            if (!seller) return React.createElement('div', { className: 'text-center py-20 text-2xl text-gray-500' }, 'المتجر غير موجود');
+
+            return React.createElement('div', { className: 'animate-fade-in' },
+                React.createElement('div', { className: 'h-64 md:h-80 rounded-3xl overflow-hidden mb-8 relative' },
+                    React.createElement('img', { src: seller.banner || seller.avatar, alt: '', className: 'w-full h-full object-cover' }),
+                    React.createElement('div', { className: 'absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent' }),
+                    React.createElement('div', { className: 'absolute bottom-0 left-0 right-0 p-8 text-white' },
+                        React.createElement('div', { className: 'flex items-end gap-6' },
+                            React.createElement('img', { src: seller.avatar, alt: '', className: 'w-24 h-24 rounded-2xl border-4 border-white shadow-2xl' }),
+                            React.createElement('div', null,
+                                React.createElement('h1', { className: 'text-3xl font-bold mb-2' }, seller.name),
+                                React.createElement('p', { className: 'text-white/90 text-lg' }, seller.bio)
+                            )
+                        )
+                    )
+                ),
+                React.createElement('h2', { className: 'text-2xl font-bold mb-6 text-slate-800' }, language === 'ar' ? 'منتجات المتجر' : 'Store Products'),
+                React.createElement('div', { className: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6' },
+                    products.map(product => React.createElement('div', { key: product.id, className: 'product-card bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden' },
+                        React.createElement(Link, { to: `/product/${product.id}` }, React.createElement('img', { src: product.image, alt: product.name, className: 'w-full h-56 object-cover' })),
+                        React.createElement('div', { className: 'p-5' },
+                            React.createElement('h3', { className: 'font-bold text-lg text-slate-800 mb-3' }, product.name),
+                            React.createElement('div', { className: 'flex items-center justify-between' },
+                                React.createElement('span', { className: 'text-xl font-bold text-slate-800' }, formatPrice(product.price)),
+                                React.createElement('button', { onClick: () => addToCart(product), className: 'bg-slate-800 text-white w-12 h-12 rounded-xl flex items-center justify-center hover:bg-slate-700 transition hover:scale-105' },
+                                    React.createElement('i', { className: 'fas fa-plus' })
+                                )
+                            )
+                        )
+                    ))
+                )
+            );
+        }
+
+        function AiAssistant({ language }) {
+            const [isOpen, setIsOpen] = useState(false);
+            const [messages, setMessages] = useState([{ text: language === 'ar' ? 'مرحباً! كيف يمكنني مساعدتك؟' : 'Hello! How can I help you?', isUser: false }]);
+            const [input, setInput] = useState('');
+
+            const handleSend = () => {
+                if (!input.trim()) return;
+                setMessages([...messages, { text: input, isUser: true }]);
+                setTimeout(() => setMessages(prev => [...prev, { text: language === 'ar' ? 'شكراً لتواصلك. فريق الدعم سيرد عليك قريباً.' : 'Thanks for contacting us. Support will reply soon.', isUser: false }]), 1000);
+                setInput('');
+            };
+
+            return React.createElement(React.Fragment, null,
+                React.createElement('button', { onClick: () => setIsOpen(!isOpen), className: 'fixed bottom-28 md:bottom-8 left-4 md:left-8 w-14 h-14 bg-slate-800 text-white rounded-full shadow-2xl flex items-center justify-center hover:bg-slate-700 transition z-40 hover:scale-110' },
+                    React.createElement('i', { className: `fas ${isOpen ? 'fa-times' : 'fa-robot'} text-xl` })
+                ),
+                isOpen && React.createElement('div', { className: 'fixed bottom-44 md:bottom-28 left-4 md:left-8 w-80 bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden z-40 animate-fade-in' },
+                    React.createElement('div', { className: 'bg-slate-800 text-white p-5 flex items-center gap-3' },
+                        React.createElement('i', { className: 'fas fa-robot text-2xl' }),
+                        React.createElement('h3', { className: 'font-bold text-lg' }, language === 'ar' ? 'المساعد الذكي' : 'AI Assistant')
+                    ),
+                    React.createElement('div', { className: 'h-72 overflow-y-auto p-4 space-y-3 bg-gray-50' },
+                        messages.map((msg, i) => React.createElement('div', { key: i, className: `flex ${msg.isUser ? 'justify-end' : 'justify-start'}` },
+                            React.createElement('div', { className: `max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed ${msg.isUser ? 'bg-slate-800 text-white rounded-br-none' : 'bg-white text-gray-800 shadow-sm rounded-bl-none'}` }, msg.text)
+                        ))
+                    ),
+                    React.createElement('div', { className: 'p-4 border-t border-gray-100 bg-white flex gap-2' },
+                        React.createElement('input', { type: 'text', value: input, onChange: e => setInput(e.target.value), onKeyPress: e => e.key === 'Enter' && handleSend(), placeholder: language === 'ar' ? 'اكتب رسالتك...' : 'Type your message...', className: 'flex-1 px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-slate-800 transition' }),
+                        React.createElement('button', { onClick: handleSend, className: 'bg-slate-800 text-white w-12 rounded-xl flex items-center justify-center hover:bg-slate-700 transition' },
+                            React.createElement('i', { className: 'fas fa-paper-plane' })
+                        )
+                    )
+                )
+            );
+        }
+
+        function BottomNav({ cartCount, user, t, language }) {
+            const location = useLocation();
+            const isActive = (path) => location.pathname === path;
+            const navItems = [
+                { path: '/', icon: 'fa-home', label: t('home') },
+                { path: '/cart', icon: 'fa-shopping-cart', label: t('cart'), badge: cartCount },
+                { path: '/download', icon: 'fa-desktop', label: t('installApp') },
+                { path: user ? '/profile' : '/auth', icon: user ? null : 'fa-user', label: user ? t('profile') : t('login'), image: user?.avatar }
+            ];
+
+            return React.createElement('div', { className: 'md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-gray-200 px-6 py-3 flex justify-around items-center z-50 pb-safe shadow-lg' },
+                navItems.map((item, i) => React.createElement(Link, {
+                    key: i, to: item.path, className: `flex flex-col items-center gap-1 transition ${isActive(item.path) ? 'text-slate-800' : 'text-gray-400'}`
+                },
+                    item.image ? React.createElement('img', { src: item.image, className: 'w-6 h-6 rounded-full border-2 border-current', alt: '' }) :
+                        React.createElement('div', { className: 'relative' },
+                            React.createElement('i', { className: `fas ${item.icon} text-xl` }),
+                            item.badge > 0 && React.createElement('span', { className: 'absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white' }, item.badge)
+                        ),
+                    React.createElement('span', { className: 'text-[11px] font-bold' }, item.label)
+                ))
+            );
+        }
+
+        function ProtectedRoute({ children, role, user }) {
+            const location = useLocation();
+            if (!user) return React.createElement(Navigate, { to: '/auth', state: { from: location }, replace: true });
+            if (role && user.role !== role) return React.createElement(Navigate, { to: '/', replace: true });
+            return children;
+        }
+
+        function App() {
+            const [user, setUser] = useState(null);
+            const [language, setLanguage] = useState('ar');
+            const [currency, setCurrency] = useState('DZD');
+            const [cart, setCart] = useState([]);
+            const [deferredPrompt, setDeferredPrompt] = useState(null);
+            const [isStandalone, setIsStandalone] = useState(false);
+
+            useEffect(() => {
+                document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
+                document.documentElement.lang = language;
+                setTimeout(() => document.getElementById('loader')?.classList.add('hidden'), 1000);
+            }, [language]);
+
+            useEffect(() => {
+                setIsStandalone(window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone);
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    setDeferredPrompt(e);
+                    setTimeout(() => document.getElementById('installBanner')?.classList.add('show'), 2000);
+                });
+                window.addEventListener('appinstalled', () => {
+                    setDeferredPrompt(null);
+                    setIsStandalone(true);
+                    document.getElementById('installBanner')?.classList.remove('show');
+                });
+            }, []);
+
+            useEffect(() => {
+                document.getElementById('installBtn').onclick = async () => {
+                    if (deferredPrompt) {
+                        deferredPrompt.prompt();
+                        await deferredPrompt.userChoice;
+                        document.getElementById('installBanner')?.classList.remove('show');
+                    }
+                };
+                document.getElementById('dismissBtn').onclick = () => document.getElementById('installBanner')?.classList.remove('show');
+            }, [deferredPrompt]);
+
+            const t = (key) => translations[language][key] || key;
+            const formatPrice = (priceInSar) => {
+                const rates = { SAR: 1, USD: 0.26, EUR: 0.24, DZD: 36.15 };
+                const symbols = { SAR: language === 'ar' ? 'ر.س' : 'SAR', USD: '$', EUR: '€', DZD: language === 'ar' ? 'د.ج' : 'DZD' };
+                const value = priceInSar * rates[currency];
+                return `${value.toLocaleString(language === 'ar' ? 'ar-DZ' : 'en-US', { maximumFractionDigits: 2 })} ${symbols[currency]}`;
+            };
+
+            const addToCart = (product) => setCart(prev => {
+                const existing = prev.find(item => item.id === product.id);
+                return existing ? prev.map(item => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item) : [...prev, { ...product, quantity: 1 }];
+            });
+            const removeFromCart = (productId) => setCart(prev => prev.filter(item => item.id !== productId));
+            const updateCartQuantity = (productId, quantity) => quantity >= 1 && setCart(prev => prev.map(item => item.id === productId ? { ...item, quantity } : item));
+            const clearCart = () => setCart([]);
+            const cartCount = useMemo(() => cart.reduce((acc, item) => acc + item.quantity, 0), [cart]);
+
+            return React.createElement(HashRouter, null,
+                React.createElement('div', { className: `min-h-screen flex flex-col bg-slate-50 ${language === 'ar' ? '' : 'font-sans'}` },
+                    React.createElement('nav', { className: 'bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-100 sticky top-0 z-50' },
+                        React.createElement('div', { className: 'container mx-auto px-4 h-16 flex items-center justify-between' },
+                            React.createElement('div', { className: 'flex items-center gap-6' },
+                                React.createElement(Link, { to: '/', className: 'text-xl md:text-2xl font-bold text-slate-800 flex items-center gap-3' },
+                                    React.createElement('div', { className: 'w-10 h-10 bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl flex items-center justify-center text-white font-bold shadow-lg' }, 'S'),
+                                    React.createElement('span', { className: 'hidden sm:inline' }, language === 'ar' ? 'سوقنا' : 'Souqna')
+                                ),
+                                React.createElement('div', { className: 'hidden lg:flex gap-6 text-gray-600 text-sm font-medium' },
+                                    React.createElement(Link, { to: '/', className: 'hover:text-slate-800 transition' }, t('home')),
+                                    user?.role === UserRole.SELLER && React.createElement(Link, { to: '/seller', className: 'hover:text-slate-800 transition text-blue-600' }, t('sellerPanel')),
+                                    user?.role === UserRole.ADMIN && React.createElement(Link, { to: '/admin', className: 'hover:text-slate-800 transition text-purple-600' }, t('adminPanel'))
+                                )
+                            ),
+                            React.createElement('div', { className: 'flex items-center gap-3' },
+                                !isStandalone && React.createElement(Link, { to: '/download', className: 'hidden md:flex items-center gap-2 bg-slate-100 px-4 py-2 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-200 transition' },
+                                    React.createElement('i', { className: 'fas fa-download' }), React.createElement('span', { className: 'hidden lg:inline' }, t('installApp'))
+                                ),
+                                React.createElement('button', { onClick: () => setLanguage(language === 'ar' ? 'en' : 'ar'), className: 'bg-gray-100 px-3 py-2 rounded-xl text-sm font-bold text-gray-600 hover:bg-gray-200 transition' }, language === 'ar' ? 'EN' : 'عربي'),
+                                React.createElement('div', { className: 'relative group' },
+                                    React.createElement('button', { className: 'bg-gray-100 px-4 py-2 rounded-xl text-sm font-bold text-gray-600 hover:bg-gray-200 transition' }, currency),
+                                    React.createElement('div', { className: 'absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-white shadow-xl rounded-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all py-2 w-32 z-50' },
+                                        ['DZD', 'SAR', 'USD', 'EUR'].map(c => React.createElement('button', { key: c, onClick: () => setCurrency(c), className: `w-full text-right px-4 py-2 text-sm hover:bg-gray-50 transition ${currency === c ? 'text-slate-800 font-bold bg-gray-50' : 'text-gray-500'}` }, c))
+                                    )
+                                ),
+                                React.createElement('div', { className: 'hidden md:flex items-center gap-4' },
+                                    React.createElement(Link, { to: '/cart', className: 'p-2 text-gray-600 hover:text-slate-800 transition relative' },
+                                        React.createElement('i', { className: 'fas fa-shopping-cart text-xl' }),
+                                        cartCount > 0 && React.createElement('span', { className: 'absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white' }, cartCount)
+                                    ),
+                                    user ? React.createElement(Link, { to: '/profile' }, React.createElement('img', { src: user.avatar, className: 'w-10 h-10 rounded-full border-2 border-gray-200 hover:border-slate-800 transition', alt: '' })) :
+                                        React.createElement('div', { className: 'flex gap-2' },
+                                            React.createElement(Link, { to: '/register-seller', className: 'bg-white border-2 border-slate-800 text-slate-800 px-4 py-2 rounded-xl text-sm font-bold hover:bg-slate-50 transition' }, t('sellOnSouqna')),
+                                            React.createElement(Link, { to: '/auth', className: 'bg-slate-800 text-white px-5 py-2 rounded-xl text-sm font-bold hover:bg-slate-900 transition shadow-lg shadow-slate-200' }, t('login'))
+                                        )
+                                )
+                            )
+                        )
+                    ),
+                    React.createElement('main', { className: 'flex-1 container mx-auto px-4 py-6 md:py-8 mb-24 md:mb-0' },
+                        React.createElement(Routes, null,
+                            React.createElement(Route, { path: '/', element: React.createElement(HomePage, { addToCart, language, formatPrice }) }),
+                            React.createElement(Route, { path: '/auth', element: React.createElement(AuthPage, { onLogin: setUser, language }) }),
+                            React.createElement(Route, { path: '/register-seller', element: React.createElement(AuthPage, { onLogin: setUser, language, initialIsLogin: false, initialRole: UserRole.SELLER }) }),
+                            React.createElement(Route, { path: '/download', element: React.createElement(DownloadPage, { language, deferredPrompt }) }),
+                            React.createElement(Route, { path: '/product/:id', element: React.createElement(ProductDetailPage, { addToCart, language, formatPrice }) }),
+                            React.createElement(Route, { path: '/cart', element: React.createElement(CartPage, { cart, removeFromCart, updateQuantity: updateCartQuantity, language, formatPrice }) }),
+                            React.createElement(Route, { path: '/checkout', element: React.createElement(ProtectedRoute, { user }, React.createElement(CheckoutPage, { cart, clearCart, user, language, formatPrice })) }),
+                            React.createElement(Route, { path: '/seller', element: React.createElement(ProtectedRoute, { user, role: UserRole.SELLER }, React.createElement(SellerDashboard, { user, language, formatPrice })) }),
+                            React.createElement(Route, { path: '/admin', element: React.createElement(ProtectedRoute, { user, role: UserRole.ADMIN }, React.createElement(AdminDashboard, { user, language, formatPrice })) }),
+                            React.createElement(Route, { path: '/profile', element: React.createElement(ProtectedRoute, { user }, React.createElement(ProfilePage, { user, onLogout: () => setUser(null), language, formatPrice })) }),
+                            React.createElement(Route, { path: '/store/:id', element: React.createElement(StorePage, { language, formatPrice, addToCart }) })
+                        )
+                    ),
+                    React.createElement(AiAssistant, { language }),
+                    React.createElement('footer', { className: 'hidden md:block bg-slate-900 text-gray-400 py-12 mt-10' },
+                        React.createElement('div', { className: 'container mx-auto px-4' },
+                            React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-4 gap-8 mb-8' },
+                                React.createElement('div', { className: 'col-span-2' },
+                                    React.createElement('div', { className: 'flex items-center gap-3 mb-4' },
+                                        React.createElement('div', { className: 'w-12 h-12 bg-white rounded-xl flex items-center justify-center text-slate-900 font-bold text-2xl' }, 'S'),
+                                        React.createElement('h3', { className: 'text-2xl font-bold text-white' }, language === 'ar' ? 'سوقنا' : 'Souqna')
+                                    ),
+                                    React.createElement('p', { className: 'text-sm leading-relaxed opacity-80 max-w-md' }, t('footerDesc'))
+                                ),
+                                React.createElement('div', null,
+                                    React.createElement('h4', { className: 'text-white font-bold mb-4' }, language === 'ar' ? 'روابط سريعة' : 'Quick Links'),
+                                    React.createElement('ul', { className: 'space-y-2 text-sm' },
+                                        React.createElement('li', null, React.createElement(Link, { to: '/', className: 'hover:text-white transition' }, t('home'))),
+                                        React.createElement('li', null, React.createElement(Link, { to: '/cart', className: 'hover:text-white transition' }, t('cart'))),
+                                        React.createElement('li', null, React.createElement(Link, { to: '/download', className: 'hover:text-white transition' }, t('installApp')))
+                                    )
+                                ),
+                                React.createElement('div', null,
+                                    React.createElement('h4', { className: 'text-white font-bold mb-4' }, language === 'ar' ? 'حمل التطبيق' : 'Get the App'),
+                                    React.createElement(Link, { to: '/download', className: 'inline-flex items-center gap-3 bg-white/10 hover:bg-white/20 transition p-4 rounded-2xl' },
+                                        React.createElement('i', { className: 'fas fa-mobile-alt text-3xl text-amber-400' }),
+                                        React.createElement('div', { className: 'text-right' },
+                                            React.createElement('p', { className: 'text-[10px] opacity-60 uppercase tracking-wider' }, 'Download on the'),
+                                            React.createElement('p', { className: 'text-sm font-bold text-white' }, 'App Store / Web')
+                                        )
+                                    )
+                                )
+                            ),
+                            React.createElement('div', { className: 'border-t border-white/10 pt-8 text-center text-sm opacity-60' },
+                                React.createElement('p', null, `© 2024 ${language === 'ar' ? 'سوقنا' : 'Souqna'} - ${t('rights')}`)
+                            )
+                        )
+                    ),
+                    React.createElement(BottomNav, { cartCount, user, t, language })
+                )
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(React.createElement(App));
+    </script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(console.error);
+        }
+    </script>
+</body>
+</html>
