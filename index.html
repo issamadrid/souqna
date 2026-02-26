@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Souqna - Global Marketplace | سوقنا</title>
     <meta name="description" content="Global marketplace supporting 50+ countries, 10 languages, and worldwide shipping">
-    <meta name="theme-color" content="#1e3a5f">
+    <meta name="theme-color" content="#2563eb">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -17,663 +17,467 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        * { font-family: 'Inter', 'Tajawal', sans-serif; }
+        * { 
+            font-family: 'Inter', 'Tajawal', sans-serif; 
+            box-sizing: border-box;
+        }
         [dir="rtl"] * { font-family: 'Tajawal', 'Inter', sans-serif; }
         
-        body { background: #f8fafc; }
+        body { 
+            background: #f8fafc; 
+            color: #1e293b;
+            line-height: 1.6;
+        }
         
-        /* Flags */
-        .flag { width: 24px; height: 18px; border-radius: 3px; object-fit: cover; }
+        /* High Contrast Colors - No more black on dark! */
+        .primary-blue { color: #2563eb; }
+        .bg-primary-blue { background-color: #2563eb; }
+        .primary-dark { color: #1e40af; }
+        .bg-primary-dark { background-color: #1e40af; }
         
-        /* RTL Support */
-        .rtl { direction: rtl; }
-        .ltr { direction: ltr; }
+        /* White text on dark backgrounds only */
+        .text-on-dark { color: #ffffff; }
+        .bg-dark { background-color: #1e293b; }
         
-        /* Currency Selector */
-        .currency-flag { font-size: 1.2em; margin-right: 8px; }
+        /* Improved contrast cards */
+        .card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
         
-        /* Language Dropdown */
-        .lang-option { display: flex; align-items: center; gap: 10px; padding: 10px; cursor: pointer; }
-        .lang-option:hover { background: #f3f4f6; }
+        .card:hover {
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-color: #3b82f6;
+        }
         
-        /* Country Selector */
-        .country-card { 
-            display: flex; align-items: center; gap: 12px; padding: 12px 16px;
-            border: 2px solid #e5e7eb; border-radius: 12px; cursor: pointer;
+        /* Admin Dashboard Specific Styles */
+        .admin-sidebar {
+            background: linear-gradient(180deg, #1e40af 0%, #1e3a8a 100%);
+            color: white;
+        }
+        
+        .admin-nav-item {
+            padding: 12px 16px;
+            margin: 4px 8px;
+            border-radius: 8px;
+            color: #bfdbfe;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .admin-nav-item:hover, .admin-nav-item.active {
+            background: rgba(255,255,255,0.15);
+            color: #ffffff;
+        }
+        
+        .admin-nav-item i {
+            width: 24px;
+            text-align: center;
+            font-size: 18px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            border-left: 4px solid #3b82f6;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+        
+        .stat-card.purple { border-left-color: #8b5cf6; }
+        .stat-card.green { border-left-color: #10b981; }
+        .stat-card.orange { border-left-color: #f59e0b; }
+        .stat-card.red { border-left-color: #ef4444; }
+        
+        /* Language & Currency Selectors - High Visibility */
+        .selector-btn {
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: #1e293b;
+            transition: all 0.2s;
+            min-width: 140px;
+        }
+        
+        .selector-btn:hover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+        
+        .selector-btn .flag {
+            font-size: 24px;
+        }
+        
+        .selector-btn .code {
+            color: #2563eb;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        
+        /* Modal Improvements */
+        .modal-overlay {
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+        }
+        
+        .modal-content {
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            padding: 20px 24px;
+            border-radius: 20px 20px 0 0;
+        }
+        
+        /* Language Options Grid */
+        .lang-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            padding: 20px;
+        }
+        
+        .lang-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+        
+        .lang-option:hover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+            transform: translateY(-2px);
+        }
+        
+        .lang-option.selected {
+            border-color: #2563eb;
+            background: #dbeafe;
+        }
+        
+        .lang-option .flag {
+            font-size: 32px;
+        }
+        
+        .lang-option .name {
+            font-weight: 700;
+            color: #1e293b;
+            font-size: 16px;
+        }
+        
+        .lang-option .native {
+            color: #64748b;
+            font-size: 13px;
+        }
+        
+        /* Currency Grid */
+        .currency-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px;
+            padding: 20px;
+        }
+        
+        .currency-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 20px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+        
+        .currency-option:hover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+        
+        .currency-option.selected {
+            border-color: #2563eb;
+            background: #dbeafe;
+        }
+        
+        .currency-option .flag {
+            font-size: 36px;
+        }
+        
+        .currency-option .code {
+            font-weight: 800;
+            color: #2563eb;
+            font-size: 20px;
+        }
+        
+        .currency-option .name {
+            color: #64748b;
+            font-size: 12px;
+            text-align: center;
+        }
+        
+        /* Product Cards */
+        .product-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+            border-color: #3b82f6;
+        }
+        
+        /* Buttons with proper contrast */
+        .btn-primary {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
             transition: all 0.2s;
         }
-        .country-card:hover, .country-card.active { 
-            border-color: #1e3a5f; background: #eff6ff; 
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(37,99,235,0.3);
         }
         
-        /* Time Zone */
-        .live-time { font-variant-numeric: tabular-nums; }
-        
-        /* Shipping Calculator */
-        .shipping-box { 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white; padding: 20px; border-radius: 16px; margin: 20px 0;
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            border: 2px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s;
         }
         
-        /* Multi-currency Display */
-        .price-tag { 
-            display: inline-flex; flex-direction: column; align-items: flex-start;
-        }
-        .price-original { 
-            text-decoration: line-through; color: #9ca3af; font-size: 0.85em;
-        }
-        .price-converted { 
-            color: #1e3a5f; font-weight: bold; font-size: 1.1em;
-        }
-        .price-local { 
-            color: #6b7280; font-size: 0.8em;
+        .btn-secondary:hover {
+            background: #e2e8f0;
+            border-color: #cbd5e1;
         }
         
-        /* VAT Display */
-        .vat-info { 
-            font-size: 0.75em; color: #6b7280; margin-top: 4px;
+        /* Tables for Admin */
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
         }
         
-        /* Product Card */
-        .product-card { 
-            transition: all 0.3s ease; background: white;
-            border-radius: 16px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        .product-card:hover { 
-            transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-        }
-        
-        /* Global Search */
-        .global-search { 
-            position: relative;
-        }
-        .search-suggestions { 
-            position: absolute; top: 100%; left: 0; right: 0;
-            background: white; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-            max-height: 400px; overflow-y: auto; z-index: 50; display: none;
-        }
-        .search-suggestions.show { display: block; }
-        
-        /* Chat Widget */
-        .chat-widget { 
-            position: fixed; bottom: 100px; right: 20px;
-            width: 60px; height: 60px; background: #1e3a5f;
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            color: white; font-size: 24px; cursor: pointer; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            z-index: 100;
+        .data-table th {
+            background: #f8fafc;
+            color: #475569;
+            font-weight: 700;
+            text-align: left;
+            padding: 16px;
+            border-bottom: 2px solid #e2e8f0;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
-        /* Translation Badge */
-        .translated-badge { 
-            background: #dbeafe; color: #1e40af; padding: 4px 8px;
-            border-radius: 4px; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 4px;
+        .data-table td {
+            padding: 16px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #1e293b;
         }
         
-        /* Install Prompt */
-        .install-prompt { 
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(200px);
-            background: white; padding: 20px; border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2); z-index: 1000;
-            transition: transform 0.3s; max-width: 90%; width: 420px;
+        .data-table tr:hover td {
+            background: #f8fafc;
         }
-        .install-prompt.show { transform: translateX(-50%) translateY(0); }
+        
+        /* Status Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        
+        .badge-success {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .badge-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .badge-info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        /* Charts placeholder */
+        .chart-container {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            background: white;
+            color: #1e293b;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 9999;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            border-left: 4px solid #10b981;
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+        
+        .toast-icon {
+            width: 40px;
+            height: 40px;
+            background: #dcfce7;
+            color: #166534;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
         
         /* Animations */
-        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-slide-in { animation: slideIn 0.4s ease; }
-        
-        /* Dark Mode Support */
-        @media (prefers-color-scheme: dark) {
-            body { background: #0f172a; color: #e2e8f0; }
-            .product-card { background: #1e293b; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
-        /* Accessibility */
-        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
-        .focus-visible:focus { outline: 2px solid #3b82f6; outline-offset: 2px; }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease;
+        }
         
-        /* Loading Skeleton */
-        .skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: loading 1.5s infinite; }
-        @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .lang-grid, .currency-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .admin-sidebar {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                top: auto;
+                height: auto;
+                flex-direction: row;
+                padding: 8px;
+                z-index: 100;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen">
-    <!-- Top Bar - Global Settings -->
-    <div class="bg-slate-900 text-white text-sm py-2">
-        <div class="container mx-auto px-4 flex items-center justify-between flex-wrap gap-2">
-            <div class="flex items-center gap-4">
-                <span class="flex items-center gap-2">
-                    <i class="fas fa-globe"></i>
-                    <span id="currentRegion">🌍 Global</span>
-                </span>
-                <span class="hidden sm:inline text-slate-400">|</span>
-                <span class="hidden sm:flex items-center gap-2">
-                    <i class="far fa-clock"></i>
-                    <span id="worldClock" class="live-time">UTC 12:00</span>
-                </span>
-            </div>
-            <div class="flex items-center gap-4">
-                <button onclick="showLanguageModal()" class="flex items-center gap-2 hover:text-blue-400 transition">
-                    <span id="currentLangFlag">🇸🇦</span>
-                    <span id="currentLang">العربية</span>
-                    <i class="fas fa-chevron-down text-xs"></i>
-                </button>
-                <button onclick="showCurrencyModal()" class="flex items-center gap-2 hover:text-blue-400 transition">
-                    <span id="currentCurrency">DZD</span>
-                    <i class="fas fa-chevron-down text-xs"></i>
-                </button>
-            </div>
-        </div>
+    <!-- App Container -->
+    <div id="app">
+        <!-- Content loaded dynamically -->
     </div>
 
-    <!-- Header -->
-    <header class="bg-white shadow-sm sticky top-0 z-40">
-        <div class="container mx-auto px-4 py-4">
-            <div class="flex items-center gap-4">
-                <!-- Logo -->
-                <a href="#" onclick="showHome()" class="flex items-center gap-3 flex-shrink-0">
-                    <div class="w-12 h-12 bg-gradient-to-br from-slate-800 to-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-2xl shadow-lg">
-                        S
-                    </div>
-                    <div>
-                        <h1 class="text-2xl font-bold text-slate-800 leading-none">Souqna</h1>
-                        <p class="text-xs text-slate-500 mt-1">Global Marketplace</p>
-                    </div>
-                </a>
-
-                <!-- Global Search -->
-                <div class="flex-1 max-w-2xl mx-4 global-search hidden md:block">
-                    <div class="relative">
-                        <input type="text" id="searchInput" placeholder="Search products, brands, categories..." 
-                               class="w-full pl-12 pr-4 py-3 bg-slate-100 border-0 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
-                               oninput="handleSearch(this.value)" onfocus="showSearchSuggestions()">
-                        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        <button class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
-                            <i class="fas fa-microphone"></i>
-                        </button>
-                    </div>
-                    <div id="searchSuggestions" class="search-suggestions mt-2">
-                        <!-- Dynamic suggestions -->
-                    </div>
-                </div>
-
-                <!-- Actions -->
-                <div class="flex items-center gap-2 sm:gap-4">
-                    <button onclick="toggleCart()" class="relative p-3 hover:bg-slate-100 rounded-xl transition">
-                        <i class="fas fa-shopping-cart text-xl text-slate-700"></i>
-                        <span id="cartBadge" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold hidden">0</span>
-                    </button>
-                    
-                    <button onclick="showWishlist()" class="relative p-3 hover:bg-slate-100 rounded-xl transition hidden sm:block">
-                        <i class="far fa-heart text-xl text-slate-700"></i>
-                    </button>
-                    
-                    <button onclick="showProfile()" class="flex items-center gap-2 p-2 pr-4 hover:bg-slate-100 rounded-xl transition">
-                        <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <span class="hidden lg:block text-sm font-medium text-slate-700" data-i18n="account">Account</span>
-                    </button>
-                    
-                    <button onclick="showSellModal()" class="hidden xl:flex items-center gap-2 bg-slate-800 text-white px-4 py-2 rounded-xl hover:bg-slate-700 transition">
-                        <i class="fas fa-store"></i>
-                        <span data-i18n="sell">Sell</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- Navigation Categories -->
-    <nav class="bg-white border-b overflow-x-auto">
-        <div class="container mx-auto px-4">
-            <div class="flex items-center gap-1 py-3 min-w-max">
-                <button onclick="filterCategory('all')" class="category-btn px-4 py-2 rounded-lg bg-slate-800 text-white text-sm font-medium transition">All</button>
-                <button onclick="filterCategory('electronics')" class="category-btn px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-100 text-sm font-medium transition">Electronics</button>
-                <button onclick="filterCategory('fashion')" class="category-btn px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-100 text-sm font-medium transition">Fashion</button>
-                <button onclick="filterCategory('home')" class="category-btn px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-100 text-sm font-medium transition">Home</button>
-                <button onclick="filterCategory('beauty')" class="category-btn px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-100 text-sm font-medium transition">Beauty</button>
-                <button onclick="filterCategory('sports')" class="category-btn px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-100 text-sm font-medium transition">Sports</button>
-                <button onclick="filterCategory('automotive')" class="category-btn px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-100 text-sm font-medium transition">Automotive</button>
-                <button onclick="filterCategory('books')" class="category-btn px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-100 text-sm font-medium transition">Books</button>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Main Content -->
-    <main class="container mx-auto px-4 py-6">
-        
-        <!-- Hero Section -->
-        <section class="relative rounded-3xl overflow-hidden mb-8 animate-slide-in">
-            <div class="absolute inset-0 bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900"></div>
-            <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1200')] opacity-20 bg-cover bg-center"></div>
-            <div class="relative p-8 md:p-12 text-white">
-                <div class="max-w-2xl">
-                    <span class="inline-block px-4 py-1 bg-blue-500/30 rounded-full text-sm mb-4 backdrop-blur-sm">
-                        🌍 Global Shipping to <span id="heroCountry">Algeria</span>
-                    </span>
-                    <h2 class="text-3xl md:text-5xl font-bold mb-4" data-i18n="heroTitle">Shop from Anywhere, Delivered Everywhere</h2>
-                    <p class="text-lg text-white/80 mb-6" data-i18n="heroSubtitle">50+ countries • Local prices • Fast shipping</p>
-                    
-                    <!-- Shipping Calculator -->
-                    <div class="bg-white/10 backdrop-blur-md rounded-2xl p-4 flex flex-wrap gap-4 items-center">
-                        <div class="flex items-center gap-2">
-                            <span class="text-sm">📍</span>
-                            <select id="shipFrom" class="bg-white/20 border-0 rounded-lg px-3 py-2 text-sm">
-                                <option value="US">🇺🇸 United States</option>
-                                <option value="CN">🇨🇳 China</option>
-                                <option value="TR">🇹🇷 Turkey</option>
-                                <option value="AE">🇦🇪 UAE</option>
-                                <option value="DE">🇩🇪 Germany</option>
-                            </select>
-                        </div>
-                        <i class="fas fa-arrow-right text-white/50"></i>
-                        <div class="flex items-center gap-2">
-                            <span class="text-sm">📦</span>
-                            <select id="shipTo" class="bg-white/20 border-0 rounded-lg px-3 py-2 text-sm">
-                                <option value="DZ">🇩🇿 Algeria</option>
-                                <option value="SA">🇸🇦 Saudi Arabia</option>
-                                <option value="EG">🇪🇬 Egypt</option>
-                                <option value="MA">🇲🇦 Morocco</option>
-                                <option value="FR">🇫🇷 France</option>
-                            </select>
-                        </div>
-                        <button onclick="calculateShipping()" class="bg-white text-slate-900 px-6 py-2 rounded-lg font-bold text-sm hover:bg-blue-50 transition">
-                            Calculate
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Features Bar -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div class="bg-white p-4 rounded-xl shadow-sm flex items-center gap-3">
-                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-600 text-xl">
-                    <i class="fas fa-shield-alt"></i>
-                </div>
-                <div>
-                    <p class="font-bold text-sm">Buyer Protection</p>
-                    <p class="text-xs text-gray-500">100% Secure</p>
-                </div>
-            </div>
-            <div class="bg-white p-4 rounded-xl shadow-sm flex items-center gap-3">
-                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-xl">
-                    <i class="fas fa-shipping-fast"></i>
-                </div>
-                <div>
-                    <p class="font-bold text-sm">Global Shipping</p>
-                    <p class="text-xs text-gray-500">3-15 Days</p>
-                </div>
-            </div>
-            <div class="bg-white p-4 rounded-xl shadow-sm flex items-center gap-3">
-                <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-xl">
-                    <i class="fas fa-undo"></i>
-                </div>
-                <div>
-                    <p class="font-bold text-sm">Easy Returns</p>
-                    <p class="text-xs text-gray-500">30 Days</p>
-                </div>
-            </div>
-            <div class="bg-white p-4 rounded-xl shadow-sm flex items-center gap-3">
-                <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 text-xl">
-                    <i class="fas fa-headset"></i>
-                </div>
-                <div>
-                    <p class="font-bold text-sm">24/7 Support</p>
-                    <p class="text-xs text-gray-500">Multilingual</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Products Section -->
-        <section>
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl font-bold text-slate-800">Trending Now <span class="text-sm font-normal text-gray-500">in your region</span></h3>
-                <div class="flex items-center gap-2">
-                    <select id="sortBy" onchange="sortProducts(this.value)" class="text-sm border rounded-lg px-3 py-2">
-                        <option value="popular">Most Popular</option>
-                        <option value="price-low">Price: Low to High</option>
-                        <option value="price-high">Price: High to Low</option>
-                        <option value="newest">Newest First</option>
-                        <option value="rating">Top Rated</option>
-                    </select>
-                </div>
-            </div>
-
-            <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                <!-- Products loaded dynamically -->
-            </div>
-        </section>
-
-        <!-- Country Selector Section -->
-        <section class="mt-12 bg-white rounded-2xl p-6 shadow-sm">
-            <h3 class="text-lg font-bold mb-4">Popular Shopping Destinations</h3>
-            <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3">
-                <div class="country-card active" onclick="selectCountry('US')">
-                    <span class="text-2xl">🇺🇸</span>
-                    <div>
-                        <p class="font-bold text-sm">USA</p>
-                        <p class="text-xs text-gray-500">Local prices</p>
-                    </div>
-                </div>
-                <div class="country-card" onclick="selectCountry('CN')">
-                    <span class="text-2xl">🇨🇳</span>
-                    <div>
-                        <p class="font-bold text-sm">China</p>
-                        <p class="text-xs text-gray-500">Best deals</p>
-                    </div>
-                </div>
-                <div class="country-card" onclick="selectCountry('TR')">
-                    <span class="text-2xl">🇹🇷</span>
-                    <div>
-                        <p class="font-bold text-sm">Turkey</p>
-                        <p class="text-xs text-gray-500">Fast shipping</p>
-                    </div>
-                </div>
-                <div class="country-card" onclick="selectCountry('AE')">
-                    <span class="text-2xl">🇦🇪</span>
-                    <div>
-                        <p class="font-bold text-sm">UAE</p>
-                        <p class="text-xs text-gray-500">Tax free</p>
-                    </div>
-                </div>
-                <div class="country-card" onclick="selectCountry('DE')">
-                    <span class="text-2xl">🇩🇪</span>
-                    <div>
-                        <p class="font-bold text-sm">Germany</p>
-                        <p class="text-xs text-gray-500">Quality goods</p>
-                    </div>
-                </div>
-                <div class="country-card" onclick="selectCountry('GB')">
-                    <span class="text-2xl">🇬🇧</span>
-                    <div>
-                        <p class="font-bold text-sm">UK</p>
-                        <p class="text-xs text-gray-500">Trending</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- Cart Modal -->
-    <div id="cartModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-hidden animate-slide-in">
-            <div class="p-6 border-b flex items-center justify-between">
-                <h3 class="text-xl font-bold">Shopping Cart <span id="cartCountBadge" class="text-sm font-normal text-gray-500">(0 items)</span></h3>
-                <button onclick="toggleCart()" class="w-10 h-10 hover:bg-gray-100 rounded-full transition">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <div id="cartItems" class="p-6 overflow-y-auto max-h-[50vh]">
-                <!-- Cart items -->
-            </div>
-            
-            <div class="p-6 border-t bg-gray-50">
-                <!-- Order Summary -->
-                <div class="space-y-2 mb-4 text-sm">
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Subtotal</span>
-                        <span id="cartSubtotal" class="font-medium">$0.00</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Shipping to <span id="cartDestination">Algeria</span></span>
-                        <span id="cartShipping" class="font-medium text-green-600">Calculated at checkout</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Estimated Tax/VAT</span>
-                        <span id="cartTax" class="font-medium">$0.00</span>
-                    </div>
-                    <div class="border-t pt-2 flex justify-between text-lg font-bold">
-                        <span>Total (<span id="cartCurrency">USD</span>)</span>
-                        <span id="cartTotal">$0.00</span>
-                    </div>
-                </div>
-                
-                <button onclick="proceedToCheckout()" class="w-full bg-slate-800 text-white py-4 rounded-xl font-bold hover:bg-slate-700 transition flex items-center justify-center gap-2">
-                    Proceed to Checkout <i class="fas fa-arrow-right"></i>
-                </button>
-                
-                <div class="mt-4 flex items-center justify-center gap-4 text-2xl text-gray-400">
-                    <i class="fab fa-cc-visa" title="Visa"></i>
-                    <i class="fab fa-cc-mastercard" title="Mastercard"></i>
-                    <i class="fab fa-cc-paypal" title="PayPal"></i>
-                    <i class="fab fa-cc-apple-pay" title="Apple Pay"></i>
-                    <i class="fas fa-university" title="Bank Transfer"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Language Modal -->
-    <div id="languageModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white rounded-3xl max-w-md w-full p-6 animate-slide-in">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl font-bold">Select Language / اختر اللغة</h3>
-                <button onclick="closeLanguageModal()" class="w-10 h-10 hover:bg-gray-100 rounded-full">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="space-y-2 max-h-[60vh] overflow-y-auto">
-                <div class="lang-option rounded-xl" onclick="setLanguage('ar', 'العربية', '🇸🇦')">
-                    <span class="text-2xl">🇸🇦</span>
-                    <div>
-                        <p class="font-bold">العربية</p>
-                        <p class="text-sm text-gray-500">Arabic</p>
-                    </div>
-                </div>
-                <div class="lang-option rounded-xl" onclick="setLanguage('en', 'English', '🇬🇧')">
-                    <span class="text-2xl">🇬🇧</span>
-                    <div>
-                        <p class="font-bold">English</p>
-                        <p class="text-sm text-gray-500">English</p>
-                    </div>
-                </div>
-                <div class="lang-option rounded-xl" onclick="setLanguage('fr', 'Français', '🇫🇷')">
-                    <span class="text-2xl">🇫🇷</span>
-                    <div>
-                        <p class="font-bold">Français</p>
-                        <p class="text-sm text-gray-500">French</p>
-                    </div>
-                </div>
-                <div class="lang-option rounded-xl" onclick="setLanguage('es', 'Español', '🇪🇸')">
-                    <span class="text-2xl">🇪🇸</span>
-                    <div>
-                        <p class="font-bold">Español</p>
-                        <p class="text-sm text-gray-500">Spanish</p>
-                    </div>
-                </div>
-                <div class="lang-option rounded-xl" onclick="setLanguage('tr', 'Türkçe', '🇹🇷')">
-                    <span class="text-2xl">🇹🇷</span>
-                    <div>
-                        <p class="font-bold">Türkçe</p>
-                        <p class="text-sm text-gray-500">Turkish</p>
-                    </div>
-                </div>
-                <div class="lang-option rounded-xl" onclick="setLanguage('zh', '中文', '🇨🇳')">
-                    <span class="text-2xl">🇨🇳</span>
-                    <div>
-                        <p class="font-bold">中文</p>
-                        <p class="text-sm text-gray-500">Chinese</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Currency Modal -->
-    <div id="currencyModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white rounded-3xl max-w-md w-full p-6 animate-slide-in">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl font-bold">Select Currency</h3>
-                <button onclick="closeCurrencyModal()" class="w-10 h-10 hover:bg-gray-100 rounded-full">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="grid grid-cols-2 gap-3 max-h-[60vh] overflow-y-auto" id="currencyList">
-                <!-- Currencies loaded dynamically -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Chat Widget -->
-    <div class="chat-widget" onclick="toggleChat()">
-        <i class="fas fa-comments"></i>
-    </div>
-
-    <!-- Install Prompt -->
-    <div id="installPrompt" class="install-prompt">
-        <div class="flex items-start gap-4">
-            <div class="w-14 h-14 bg-gradient-to-br from-slate-800 to-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-2xl flex-shrink-0">
-                S
-            </div>
-            <div class="flex-1">
-                <h4 class="font-bold text-lg mb-1">Install Souqna App</h4>
-                <p class="text-gray-600 text-sm mb-1">Get the best shopping experience with offline access and instant notifications.</p>
-                <p class="text-xs text-gray-500">⭐ 4.9 rating • 10M+ downloads</p>
-            </div>
-        </div>
-        <div class="flex gap-3 mt-4">
-            <button onclick="installApp()" class="flex-1 bg-slate-800 text-white py-3 rounded-xl font-bold hover:bg-slate-700 transition">
-                Install Now
-            </button>
-            <button onclick="dismissInstall()" class="px-6 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition">
-                Not now
-            </button>
-        </div>
-    </div>
-
-    <!-- Toast Notification -->
-    <div id="toast" class="fixed top-24 right-4 bg-slate-800 text-white px-6 py-3 rounded-xl shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex items-center gap-3">
-        <i class="fas fa-check-circle text-green-400"></i>
-        <span id="toastMessage">Added to cart</span>
-    </div>
+    <!-- Toast Container -->
+    <div id="toastContainer"></div>
 
     <script>
-        // ==================== GLOBAL CONFIGURATION ====================
+        // ==================== CONFIGURATION ====================
         
         const CONFIG = {
             languages: {
-                ar: { name: 'العربية', flag: '🇸🇦', dir: 'rtl', locale: 'ar-SA' },
-                en: { name: 'English', flag: '🇬🇧', dir: 'ltr', locale: 'en-US' },
-                fr: { name: 'Français', flag: '🇫🇷', dir: 'ltr', locale: 'fr-FR' },
-                es: { name: 'Español', flag: '🇪🇸', dir: 'ltr', locale: 'es-ES' },
-                tr: { name: 'Türkçe', flag: '🇹🇷', dir: 'ltr', locale: 'tr-TR' },
-                de: { name: 'Deutsch', flag: '🇩🇪', dir: 'ltr', locale: 'de-DE' },
-                zh: { name: '中文', flag: '🇨🇳', dir: 'ltr', locale: 'zh-CN' },
-                ja: { name: '日本語', flag: '🇯🇵', dir: 'ltr', locale: 'ja-JP' },
-                ru: { name: 'Русский', flag: '🇷🇺', dir: 'ltr', locale: 'ru-RU' },
-                pt: { name: 'Português', flag: '🇵🇹', dir: 'ltr', locale: 'pt-PT' }
+                ar: { name: 'العربية', native: 'العربية', flag: '🇸🇦', dir: 'rtl', locale: 'ar-SA' },
+                en: { name: 'English', native: 'English', flag: '🇬🇧', dir: 'ltr', locale: 'en-US' },
+                fr: { name: 'Français', native: 'Français', flag: '🇫🇷', dir: 'ltr', locale: 'fr-FR' },
+                es: { name: 'Español', native: 'Español', flag: '🇪🇸', dir: 'ltr', locale: 'es-ES' },
+                tr: { name: 'Türkçe', native: 'Türkçe', flag: '🇹🇷', dir: 'ltr', locale: 'tr-TR' },
+                de: { name: 'Deutsch', native: 'Deutsch', flag: '🇩🇪', dir: 'ltr', locale: 'de-DE' }
             },
             
             currencies: {
                 USD: { name: 'US Dollar', symbol: '$', flag: '🇺🇸', rate: 1 },
                 EUR: { name: 'Euro', symbol: '€', flag: '🇪🇺', rate: 0.92 },
-                GBP: { name: 'British Pound', symbol: '£', flag: '🇬🇧', rate: 0.79 },
                 DZD: { name: 'Algerian Dinar', symbol: 'د.ج', flag: '🇩🇿', rate: 135.5 },
                 SAR: { name: 'Saudi Riyal', symbol: 'ر.س', flag: '🇸🇦', rate: 3.75 },
                 AED: { name: 'UAE Dirham', symbol: 'د.إ', flag: '🇦🇪', rate: 3.67 },
                 MAD: { name: 'Moroccan Dirham', symbol: 'د.م', flag: '🇲🇦', rate: 10.1 },
                 EGP: { name: 'Egyptian Pound', symbol: 'ج.م', flag: '🇪🇬', rate: 30.9 },
                 TRY: { name: 'Turkish Lira', symbol: '₺', flag: '🇹🇷', rate: 28.5 },
-                CNY: { name: 'Chinese Yuan', symbol: '¥', flag: '🇨🇳', rate: 7.19 },
-                JPY: { name: 'Japanese Yen', symbol: '¥', flag: '🇯🇵', rate: 148.5 },
-                INR: { name: 'Indian Rupee', symbol: '₹', flag: '🇮🇳', rate: 83.1 },
-                RUB: { name: 'Russian Ruble', symbol: '₽', flag: '🇷🇺', rate: 91.5 },
-                BRL: { name: 'Brazilian Real', symbol: 'R$', flag: '🇧🇷', rate: 4.95 }
+                GBP: { name: 'British Pound', symbol: '£', flag: '🇬🇧', rate: 0.79 }
             },
             
             countries: {
-                DZ: { name: 'Algeria', nameAr: 'الجزائر', currency: 'DZD', lang: 'ar', flag: '🇩🇿', vat: 19 },
-                SA: { name: 'Saudi Arabia', nameAr: 'السعودية', currency: 'SAR', lang: 'ar', flag: '🇸🇦', vat: 15 },
-                AE: { name: 'UAE', nameAr: 'الإمارات', currency: 'AED', lang: 'ar', flag: '🇦🇪', vat: 5 },
-                EG: { name: 'Egypt', nameAr: 'مصر', currency: 'EGP', lang: 'ar', flag: '🇪🇬', vat: 14 },
-                MA: { name: 'Morocco', nameAr: 'المغرب', currency: 'MAD', lang: 'ar', flag: '🇲🇦', vat: 20 },
-                US: { name: 'United States', nameAr: 'أمريكا', currency: 'USD', lang: 'en', flag: '🇺🇸', vat: 0 },
-                GB: { name: 'United Kingdom', nameAr: 'بريطانيا', currency: 'GBP', lang: 'en', flag: '🇬🇧', vat: 20 },
-                FR: { name: 'France', nameAr: 'فرنسا', currency: 'EUR', lang: 'fr', flag: '🇫🇷', vat: 20 },
-                DE: { name: 'Germany', nameAr: 'ألمانيا', currency: 'EUR', lang: 'de', flag: '🇩🇪', vat: 19 },
-                TR: { name: 'Turkey', nameAr: 'تركيا', currency: 'TRY', lang: 'tr', flag: '🇹🇷', vat: 18 },
-                CN: { name: 'China', nameAr: 'الصين', currency: 'CNY', lang: 'zh', flag: '🇨🇳', vat: 13 },
-                JP: { name: 'Japan', nameAr: 'اليابان', currency: 'JPY', lang: 'ja', flag: '🇯🇵', vat: 10 }
-            },
-            
-            shippingRates: {
-                standard: { base: 15, perKg: 5, days: '7-15' },
-                express: { base: 35, perKg: 12, days: '3-7' },
-                economy: { base: 8, perKg: 3, days: '15-30' }
+                DZ: { name: 'Algeria', nameAr: 'الجزائر', currency: 'DZD', flag: '🇩🇿', vat: 19 },
+                SA: { name: 'Saudi Arabia', nameAr: 'السعودية', currency: 'SAR', flag: '🇸🇦', vat: 15 },
+                AE: { name: 'UAE', nameAr: 'الإمارات', currency: 'AED', flag: '🇦🇪', vat: 5 },
+                EG: { name: 'Egypt', nameAr: 'مصر', currency: 'EGP', flag: '🇪🇬', vat: 14 },
+                MA: { name: 'Morocco', nameAr: 'المغرب', currency: 'MAD', flag: '🇲🇦', vat: 20 },
+                US: { name: 'United States', nameAr: 'أمريكا', currency: 'USD', flag: '🇺🇸', vat: 0 },
+                TR: { name: 'Turkey', nameAr: 'تركيا', currency: 'TRY', flag: '🇹🇷', vat: 18 }
             }
-        };
-
-        // ==================== TRANSLATIONS ====================
-        
-        const i18n = {
-            ar: {
-                search: 'ابحث عن منتجات، ماركات...',
-                account: 'حسابي',
-                sell: 'بيع',
-                cart: 'السلة',
-                checkout: 'إتمام الشراء',
-                subtotal: 'المجموع الفرعي',
-                shipping: 'الشحن',
-                tax: 'الضريبة',
-                total: 'الإجمالي',
-                addToCart: 'أضف للسلة',
-                buyNow: 'اشتري الآن',
-                freeShipping: 'شحن مجاني',
-                inStock: 'متوفر',
-                outOfStock: 'غير متوفر',
-                reviews: 'تقييمات',
-                description: 'الوصف',
-                specifications: 'المواصفات',
-                seller: 'البائع',
-                contactSeller: 'تواصل مع البائع',
-                save: 'حفظ',
-                share: 'مشاركة',
-                report: 'إبلاغ'
-            },
-            en: {
-                search: 'Search products, brands...',
-                account: 'Account',
-                sell: 'Sell',
-                cart: 'Cart',
-                checkout: 'Checkout',
-                subtotal: 'Subtotal',
-                shipping: 'Shipping',
-                tax: 'Tax/VAT',
-                total: 'Total',
-                addToCart: 'Add to Cart',
-                buyNow: 'Buy Now',
-                freeShipping: 'Free Shipping',
-                inStock: 'In Stock',
-                outOfStock: 'Out of Stock',
-                reviews: 'Reviews',
-                description: 'Description',
-                specifications: 'Specifications',
-                seller: 'Seller',
-                contactSeller: 'Contact Seller',
-                save: 'Save',
-                share: 'Share',
-                report: 'Report'
-            },
-            fr: {
-                search: 'Rechercher des produits...',
-                account: 'Compte',
-                sell: 'Vendre',
-                cart: 'Panier',
-                checkout: 'Commander',
-                subtotal: 'Sous-total',
-                shipping: 'Livraison',
-                tax: 'TVA',
-                total: 'Total',
-                addToCart: 'Ajouter au panier',
-                buyNow: 'Acheter',
-                freeShipping: 'Livraison gratuite',
-                inStock: 'En stock',
-                outOfStock: 'Rupture de stock'
-            }
-            // Add more languages as needed
         };
 
         // ==================== STATE ====================
@@ -682,600 +486,56 @@
             language: localStorage.getItem('lang') || 'ar',
             currency: localStorage.getItem('currency') || 'DZD',
             country: localStorage.getItem('country') || 'DZ',
-            cart: JSON.parse(localStorage.getItem('cart')) || [],
             user: JSON.parse(localStorage.getItem('user')) || null,
-            deferredPrompt: null
+            cart: JSON.parse(localStorage.getItem('cart')) || [],
+            view: 'home', // home, admin, seller, product, cart, checkout
+            adminTab: 'dashboard' // dashboard, products, orders, users, analytics
         };
 
-        // ==================== PRODUCTS DATA ====================
+        // ==================== TRANSLATIONS ====================
         
-        const products = [
-            {
-                id: 1,
-                name: 'iPhone 15 Pro Max',
-                nameAr: 'آيفون 15 برو ماكس',
-                priceUSD: 1199,
-                category: 'electronics',
-                image: 'https://images.unsplash.com/photo-1696446701796-da61225697cc?w=400',
-                rating: 4.9,
-                reviews: 2847,
-                stock: 15,
-                seller: { name: 'Apple Official', country: 'US', rating: 4.9 },
-                shipping: { from: 'US', weight: 0.5, freeOver: 1000 },
-                specs: { screen: '6.7"', storage: '256GB', color: 'Natural Titanium' }
+        const i18n = {
+            ar: {
+                home: 'الرئيسية', admin: 'لوحة التحكم', seller: 'لوحة البائع',
+                products: 'المنتجات', orders: 'الطلبات', users: 'المستخدمين',
+                analytics: 'التحليلات', settings: 'الإعدادات', logout: 'تسجيل الخروج',
+                addProduct: 'إضافة منتج', totalSales: 'إجمالي المبيعات',
+                totalOrders: 'إجمالي الطلبات', totalUsers: 'إجمالي المستخدمين',
+                revenue: 'الإيرادات', pending: 'معلق', completed: 'مكتمل',
+                cancelled: 'ملغي', inStock: 'متوفر', outOfStock: 'غير متوفر',
+                price: 'السعر', category: 'الفئة', actions: 'إجراءات',
+                edit: 'تعديل', delete: 'حذف', view: 'عرض', save: 'حفظ',
+                cancel: 'إلغاء', confirm: 'تأكيد', search: 'بحث',
+                filter: 'تصفية', export: 'تصدير', import: 'استيراد',
+                language: 'اللغة', currency: 'العملة', country: 'الدولة',
+                welcome: 'مرحباً', dashboard: 'لوحة التحكم', overview: 'نظرة عامة',
+                recentOrders: 'أحدث الطلبات', topProducts: 'المنتجات الأكثر مبيعاً',
+                lowStock: 'مخزون منخفض', reviews: 'التقييمات'
             },
-            {
-                id: 2,
-                name: 'Samsung Galaxy S24 Ultra',
-                nameAr: 'سامسونج جالاكسي إس 24 الترا',
-                priceUSD: 1299,
-                category: 'electronics',
-                image: 'https://images.unsplash.com/photo-1610945265078-3858a0828671?w=400',
-                rating: 4.8,
-                reviews: 1923,
-                stock: 23,
-                seller: { name: 'Samsung Store', country: 'KR', rating: 4.8 },
-                shipping: { from: 'KR', weight: 0.5, freeOver: 800 }
-            },
-            {
-                id: 3,
-                name: 'Nike Air Max 2024',
-                nameAr: 'نايك آير ماكس 2024',
-                priceUSD: 189,
-                category: 'fashion',
-                image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400',
-                rating: 4.6,
-                reviews: 3421,
-                stock: 45,
-                seller: { name: 'Nike Official', country: 'US', rating: 4.7 },
-                shipping: { from: 'US', weight: 1.2, freeOver: 150 },
-                sizes: ['US 7', 'US 8', 'US 9', 'US 10', 'US 11']
-            },
-            {
-                id: 4,
-                name: 'Traditional Turkish Carpet',
-                nameAr: 'سجادة تركية تقليدية',
-                priceUSD: 450,
-                category: 'home',
-                image: 'https://images.unsplash.com/photo-1567225557594-88d73e55f2cb?w=400',
-                rating: 4.9,
-                reviews: 567,
-                stock: 8,
-                seller: { name: 'Anatolian Crafts', country: 'TR', rating: 4.9 },
-                shipping: { from: 'TR', weight: 5, freeOver: 500 }
-            },
-            {
-                id: 5,
-                name: 'Chinese Green Tea Premium',
-                nameAr: 'شاي أخضر صيني فاخر',
-                priceUSD: 89,
-                category: 'food',
-                image: 'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=400',
-                rating: 4.7,
-                reviews: 1234,
-                stock: 100,
-                seller: { name: 'Longjing Tea House', country: 'CN', rating: 4.8 },
-                shipping: { from: 'CN', weight: 0.8, freeOver: 100 }
-            },
-            {
-                id: 6,
-                name: 'German Kitchen Knife Set',
-                nameAr: 'طقم سكاكين مطبخ ألماني',
-                priceUSD: 299,
-                category: 'home',
-                image: 'https://images.unsplash.com/photo-1593618998160-e34014e67546?w=400',
-                rating: 4.9,
-                reviews: 892,
-                stock: 12,
-                seller: { name: 'Zwilling J.A. Henckels', country: 'DE', rating: 4.9 },
-                shipping: { from: 'DE', weight: 2.5, freeOver: 200 }
-            },
-            {
-                id: 7,
-                name: 'Moroccan Argan Oil',
-                nameAr: 'زيت أركان مغربي أصلي',
-                priceUSD: 45,
-                category: 'beauty',
-                image: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=400',
-                rating: 4.8,
-                reviews: 2156,
-                stock: 78,
-                seller: { name: 'Cooperative Maroc', country: 'MA', rating: 4.8 },
-                shipping: { from: 'MA', weight: 0.3, freeOver: 50 }
-            },
-            {
-                id: 8,
-                name: 'Japanese Matcha Set',
-                nameAr: 'طقم ماتشا ياباني',
-                priceUSD: 128,
-                category: 'home',
-                image: 'https://images.unsplash.com/photo-1531969179221-3926e727d704?w=400',
-                rating: 4.9,
-                reviews: 445,
-                stock: 20,
-                seller: { name: 'Kyoto Tea Masters', country: 'JP', rating: 5.0 },
-                shipping: { from: 'JP', weight: 1.5, freeOver: 200 }
+            en: {
+                home: 'Home', admin: 'Admin Panel', seller: 'Seller Panel',
+                products: 'Products', orders: 'Orders', users: 'Users',
+                analytics: 'Analytics', settings: 'Settings', logout: 'Logout',
+                addProduct: 'Add Product', totalSales: 'Total Sales',
+                totalOrders: 'Total Orders', totalUsers: 'Total Users',
+                revenue: 'Revenue', pending: 'Pending', completed: 'Completed',
+                cancelled: 'Cancelled', inStock: 'In Stock', outOfStock: 'Out of Stock',
+                price: 'Price', category: 'Category', actions: 'Actions',
+                edit: 'Edit', delete: 'Delete', view: 'View', save: 'Save',
+                cancel: 'Cancel', confirm: 'Confirm', search: 'Search',
+                filter: 'Filter', export: 'Export', import: 'Import',
+                language: 'Language', currency: 'Currency', country: 'Country',
+                welcome: 'Welcome', dashboard: 'Dashboard', overview: 'Overview',
+                recentOrders: 'Recent Orders', topProducts: 'Top Products',
+                lowStock: 'Low Stock', reviews: 'Reviews'
             }
-        ];
+        };
 
-        // ==================== INITIALIZATION ====================
+        // ==================== MOCK DATA ====================
         
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeApp();
-            startWorldClock();
-            checkInstallPrompt();
-        });
-
-        function initializeApp() {
-            applyLanguage(state.language);
-            applyCurrency(state.currency);
-            applyCountry(state.country);
-            renderProducts();
-            updateCartUI();
-            
-            // Setup event listeners
-            document.getElementById('shipTo').value = state.country;
-        }
-
-        // ==================== LANGUAGE SYSTEM ====================
-        
-        function applyLanguage(lang) {
-            const config = CONFIG.languages[lang];
-            document.documentElement.lang = lang;
-            document.documentElement.dir = config.dir;
-            
-            // Update UI
-            document.getElementById('currentLang').textContent = config.name;
-            document.getElementById('currentLangFlag').textContent = config.flag;
-            
-            // Apply translations
-            const texts = i18n[lang] || i18n.en;
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (texts[key]) el.textContent = texts[key];
-            });
-            
-            // Update search placeholder
-            const searchInput = document.getElementById('searchInput');
-            if (searchInput && texts.search) {
-                searchInput.placeholder = texts.search;
-            }
-            
-            localStorage.setItem('lang', lang);
-        }
-
-        function showLanguageModal() {
-            document.getElementById('languageModal').classList.remove('hidden');
-            document.getElementById('languageModal').classList.add('flex');
-        }
-
-        function closeLanguageModal() {
-            document.getElementById('languageModal').classList.add('hidden');
-            document.getElementById('languageModal').classList.remove('flex');
-        }
-
-        function setLanguage(code, name, flag) {
-            state.language = code;
-            applyLanguage(code);
-            closeLanguageModal();
-            renderProducts(); // Re-render with new language
-            showToast(`Language changed to ${name}`);
-        }
-
-        // ==================== CURRENCY SYSTEM ====================
-        
-        function applyCurrency(curr) {
-            const config = CONFIG.currencies[curr];
-            document.getElementById('currentCurrency').textContent = curr;
-            localStorage.setItem('currency', curr);
-        }
-
-        function formatPrice(usdPrice, options = {}) {
-            const currConfig = CONFIG.currencies[state.currency];
-            const converted = usdPrice * currConfig.rate;
-            
-            let formatted;
-            if (state.currency === 'JPY' || state.currency === 'KRW') {
-                formatted = Math.round(converted).toLocaleString();
-            } else {
-                formatted = converted.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                });
-            }
-            
-            // Add VAT if applicable
-            const countryConfig = CONFIG.countries[state.country];
-            let vatAmount = 0;
-            if (countryConfig && countryConfig.vat && !options.excludeVat) {
-                vatAmount = converted * (countryConfig.vat / 100);
-            }
-            
-            const total = converted + vatAmount;
-            
-            return {
-                symbol: currConfig.symbol,
-                amount: formatted,
-                total: total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-                vat: vatAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-                vatRate: countryConfig?.vat || 0
-            };
-        }
-
-        function showCurrencyModal() {
-            const list = document.getElementById('currencyList');
-            list.innerHTML = Object.entries(CONFIG.currencies).map(([code, info]) => `
-                <button onclick="setCurrency('${code}')" class="flex items-center gap-3 p-3 rounded-xl border hover:border-blue-500 hover:bg-blue-50 transition text-left ${state.currency === code ? 'border-blue-500 bg-blue-50' : ''}">
-                    <span class="text-2xl">${info.flag}</span>
-                    <div>
-                        <p class="font-bold">${code}</p>
-                        <p class="text-xs text-gray-500">${info.name}</p>
-                    </div>
-                </button>
-            `).join('');
-            
-            document.getElementById('currencyModal').classList.remove('hidden');
-            document.getElementById('currencyModal').classList.add('flex');
-        }
-
-        function closeCurrencyModal() {
-            document.getElementById('currencyModal').classList.add('hidden');
-            document.getElementById('currencyModal').classList.remove('flex');
-        }
-
-        function setCurrency(code) {
-            state.currency = code;
-            applyCurrency(code);
-            closeCurrencyModal();
-            renderProducts();
-            updateCartUI();
-            showToast(`Currency changed to ${CONFIG.currencies[code].name}`);
-        }
-
-        // ==================== COUNTRY SYSTEM ====================
-        
-        function applyCountry(code) {
-            const config = CONFIG.countries[code];
-            if (!config) return;
-            
-            document.getElementById('currentRegion').textContent = `${config.flag} ${config.name}`;
-            document.getElementById('heroCountry').textContent = config.name;
-            document.getElementById('cartDestination').textContent = config.name;
-            
-            // Auto-set language if not manually set
-            if (!localStorage.getItem('lang')) {
-                applyLanguage(config.lang);
-            }
-            
-            localStorage.setItem('country', code);
-        }
-
-        function selectCountry(code) {
-            state.country = code;
-            applyCountry(code);
-            
-            // Update UI
-            document.querySelectorAll('.country-card').forEach(card => {
-                card.classList.remove('active');
-            });
-            event.currentTarget.classList.add('active');
-            
-            showToast(`Shopping from ${CONFIG.countries[code].name}`);
-        }
-
-        // ==================== PRODUCT DISPLAY ====================
-        
-        function renderProducts(category = 'all') {
-            const grid = document.getElementById('productsGrid');
-            const filtered = category === 'all' ? products : products.filter(p => p.category === category);
-            
-            const lang = state.language;
-            const isRTL = lang === 'ar';
-            
-            grid.innerHTML = filtered.map(p => {
-                const price = formatPrice(p.priceUSD);
-                const name = isRTL && p.nameAr ? p.nameAr : p.name;
-                const sellerCountry = CONFIG.countries[p.seller.country];
-                
-                return `
-                    <div class="product-card group">
-                        <div class="relative h-56 overflow-hidden">
-                            <img src="${p.image}" alt="${name}" 
-                                 class="w-full h-full object-cover group-hover:scale-110 transition duration-500"
-                                 onerror="this.src='https://via.placeholder.com/400x300/1e3a5f/ffffff?text=${encodeURIComponent(name)}'">
-                            ${p.stock < 10 ? '<span class="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">Low Stock</span>' : ''}
-                            <button onclick="toggleWishlist(${p.id})" class="absolute top-3 left-3 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center text-gray-400 hover:text-red-500 transition shadow-lg">
-                                <i class="far fa-heart"></i>
-                            </button>
-                            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 opacity-0 group-hover:opacity-100 transition">
-                                <button onclick="quickView(${p.id})" class="w-full bg-white text-slate-900 py-2 rounded-lg font-bold text-sm">Quick View</button>
-                            </div>
-                        </div>
-                        <div class="p-4">
-                            <div class="flex items-center gap-2 mb-2">
-                                <span class="text-lg">${sellerCountry?.flag || '🌍'}</span>
-                                <span class="text-xs text-gray-500">${p.seller.name}</span>
-                                <span class="ml-auto flex items-center gap-1 text-amber-400 text-sm">
-                                    <i class="fas fa-star"></i> ${p.rating}
-                                </span>
-                            </div>
-                            <h3 class="font-bold text-slate-800 mb-2 line-clamp-2 ${isRTL ? 'text-right' : 'text-left'}">${name}</h3>
-                            <div class="flex items-end gap-2 mb-3">
-                                <span class="text-2xl font-bold text-slate-800">${price.symbol}${price.amount}</span>
-                                ${price.vatRate > 0 ? `<span class="text-xs text-gray-500 mb-1">+${price.vatRate}% VAT</span>` : ''}
-                            </div>
-                            <div class="flex items-center gap-2 text-sm text-gray-500 mb-3">
-                                <i class="fas fa-truck"></i>
-                                <span>${p.shipping.days || '7-15'} days from ${sellerCountry?.name || p.seller.country}</span>
-                            </div>
-                            <div class="flex gap-2">
-                                <button onclick="addToCart(${p.id})" class="flex-1 bg-slate-800 text-white py-3 rounded-xl font-bold hover:bg-slate-700 transition active:scale-95 flex items-center justify-center gap-2">
-                                    <i class="fas fa-shopping-cart"></i> ${isRTL ? 'أضف للسلة' : 'Add to Cart'}
-                                </button>
-                                <button onclick="buyNow(${p.id})" class="px-4 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition">
-                                    ${isRTL ? 'اشتري' : 'Buy'}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function filterCategory(cat) {
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                btn.classList.remove('bg-slate-800', 'text-white');
-                btn.classList.add('text-slate-600', 'hover:bg-slate-100');
-            });
-            event.target.classList.remove('text-slate-600', 'hover:bg-slate-100');
-            event.target.classList.add('bg-slate-800', 'text-white');
-            
-            renderProducts(cat);
-        }
-
-        // ==================== CART SYSTEM ====================
-        
-        function addToCart(productId) {
-            const product = products.find(p => p.id === productId);
-            const existing = state.cart.find(item => item.id === productId);
-            
-            if (existing) {
-                existing.quantity++;
-            } else {
-                state.cart.push({ ...product, quantity: 1 });
-            }
-            
-            saveCart();
-            updateCartUI();
-            showToast(state.language === 'ar' ? 'تم إضافة المنتج للسلة' : 'Added to cart');
-        }
-
-        function saveCart() {
-            localStorage.setItem('cart', JSON.stringify(state.cart));
-        }
-
-        function updateCartUI() {
-            const count = state.cart.reduce((sum, item) => sum + item.quantity, 0);
-            const badge = document.getElementById('cartBadge');
-            badge.textContent = count;
-            badge.classList.toggle('hidden', count === 0);
-            
-            // Update modal if open
-            if (!document.getElementById('cartModal').classList.contains('hidden')) {
-                renderCartItems();
-            }
-        }
-
-        function toggleCart() {
-            const modal = document.getElementById('cartModal');
-            const isOpen = !modal.classList.contains('hidden');
-            
-            if (isOpen) {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            } else {
-                renderCartItems();
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            }
-        }
-
-        function renderCartItems() {
-            const container = document.getElementById('cartItems');
-            document.getElementById('cartCountBadge').textContent = `(${state.cart.reduce((s, i) => s + i.quantity, 0)} items)`;
-            
-            if (state.cart.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-12">
-                        <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-shopping-cart text-4xl text-gray-300"></i>
-                        </div>
-                        <p class="text-gray-500">Your cart is empty</p>
-                        <button onclick="toggleCart()" class="mt-4 text-blue-600 font-bold">Continue Shopping</button>
-                    </div>
-                `;
-                updateCartTotals(0, 0, 0);
-                return;
-            }
-            
-            container.innerHTML = state.cart.map(item => {
-                const price = formatPrice(item.priceUSD * item.quantity);
-                return `
-                    <div class="flex gap-4 py-4 border-b">
-                        <img src="${item.image}" class="w-24 h-24 object-cover rounded-xl" onerror="this.src='https://via.placeholder.com/100/1e3a5f/ffffff?text=${item.name[0]}'">
-                        <div class="flex-1">
-                            <h4 class="font-bold mb-1">${state.language === 'ar' && item.nameAr ? item.nameAr : item.name}</h4>
-                            <p class="text-sm text-gray-500 mb-2">${CONFIG.countries[item.seller.country]?.flag || '🌍'} ${item.seller.name}</p>
-                            <p class="text-lg font-bold text-slate-800">${price.symbol}${price.amount}</p>
-                            <div class="flex items-center gap-3 mt-2">
-                                <button onclick="updateQuantity(${item.id}, -1)" class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center">-</button>
-                                <span class="font-bold w-8 text-center">${item.quantity}</span>
-                                <button onclick="updateQuantity(${item.id}, 1)" class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center">+</button>
-                                <button onclick="removeFromCart(${item.id})" class="ml-auto text-red-500 hover:bg-red-50 p-2 rounded-lg">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            
-            // Calculate totals
-            const subtotal = state.cart.reduce((sum, item) => sum + (item.priceUSD * item.quantity), 0);
-            const shipping = calculateShipping(subtotal);
-            const tax = calculateTax(subtotal);
-            
-            updateCartTotals(subtotal, shipping, tax);
-        }
-
-        function updateQuantity(id, delta) {
-            const item = state.cart.find(i => i.id === id);
-            if (!item) return;
-            
-            item.quantity += delta;
-            if (item.quantity <= 0) {
-                state.cart = state.cart.filter(i => i.id !== id);
-            }
-            
-            saveCart();
-            updateCartUI();
-        }
-
-        function removeFromCart(id) {
-            state.cart = state.cart.filter(i => i.id !== id);
-            saveCart();
-            updateCartUI();
-        }
-
-        function calculateShipping(subtotalUSD) {
-            // Free shipping over certain amount
-            if (subtotalUSD > 100) return 0;
-            return CONFIG.shippingRates.standard.base;
-        }
-
-        function calculateTax(subtotalUSD) {
-            const country = CONFIG.countries[state.country];
-            if (!country || !country.vat) return 0;
-            return subtotalUSD * (country.vat / 100);
-        }
-
-        function updateCartTotals(subtotalUSD, shippingUSD, taxUSD) {
-            const subtotal = formatPrice(subtotalUSD, { excludeVat: true });
-            const shipping = shippingUSD === 0 ? { symbol: '', amount: 'FREE' } : formatPrice(shippingUSD, { excludeVat: true });
-            const tax = formatPrice(taxUSD, { excludeVat: true });
-            const total = formatPrice(subtotalUSD + shippingUSD + taxUSD, { excludeVat: true });
-            
-            document.getElementById('cartSubtotal').textContent = `${subtotal.symbol}${subtotal.amount}`;
-            document.getElementById('cartShipping').textContent = shippingUSD === 0 ? 'FREE' : `${shipping.symbol}${shipping.amount}`;
-            document.getElementById('cartShipping').className = shippingUSD === 0 ? 'font-medium text-green-600' : 'font-medium';
-            document.getElementById('cartTax').textContent = `${tax.symbol}${tax.amount}`;
-            document.getElementById('cartTotal').textContent = `${total.symbol}${total.total || total.amount}`;
-            document.getElementById('cartCurrency').textContent = state.currency;
-        }
-
-        function proceedToCheckout() {
-            if (state.cart.length === 0) {
-                showToast('Your cart is empty');
-                return;
-            }
-            showToast('Redirecting to secure checkout...');
-            // Implement checkout flow
-        }
-
-        // ==================== SHIPPING CALCULATOR ====================
-        
-        function calculateShipping() {
-            const from = document.getElementById('shipFrom').value;
-            const to = document.getElementById('shipTo').value;
-            
-            if (from === to) {
-                showToast('Local shipping: 1-3 days, FREE over $50');
-            } else {
-                const distance = getDistance(from, to);
-                const rate = distance > 5000 ? 'express' : 'standard';
-                const config = CONFIG.shippingRates[rate];
-                showToast(`Shipping from ${CONFIG.countries[from]?.name || from} to ${CONFIG.countries[to]?.name || to}: ${config.days} days`);
-            }
-        }
-
-        function getDistance(from, to) {
-            // Simplified distance calculation
-            const distances = { US: 0, CN: 11000, TR: 9000, AE: 12000, DE: 7000 };
-            return Math.abs((distances[from] || 5000) - (distances[to] || 0));
-        }
-
-        // ==================== UTILITY FUNCTIONS ====================
-        
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toastMessage').textContent = message;
-            toast.classList.remove('translate-x-full');
-            setTimeout(() => {
-                toast.classList.add('translate-x-full');
-            }, 3000);
-        }
-
-        function startWorldClock() {
-            const updateClock = () => {
-                const now = new Date();
-                const timeString = now.toLocaleTimeString('en-US', { 
-                    timeZone: 'UTC', 
-                    hour: '2-digit', 
-                    minute: '2-digit',
-                    hour12: false 
-                });
-                document.getElementById('worldClock').textContent = `UTC ${timeString}`;
-            };
-            updateClock();
-            setInterval(updateClock, 60000);
-        }
-
-        function checkInstallPrompt() {
-            window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault();
-                state.deferredPrompt = e;
-                setTimeout(() => {
-                    document.getElementById('installPrompt').classList.add('show');
-                }, 5000);
-            });
-        }
-
-        function installApp() {
-            if (state.deferredPrompt) {
-                state.deferredPrompt.prompt();
-                state.deferredPrompt.userChoice.then(() => {
-                    document.getElementById('installPrompt').classList.remove('show');
-                });
-            }
-        }
-
-        function dismissInstall() {
-            document.getElementById('installPrompt').classList.remove('show');
-        }
-
-        // ==================== PLACEHOLDER FUNCTIONS ====================
-        
-        function showProfile() { showToast('Profile feature coming soon'); }
-        function showWishlist() { showToast('Wishlist feature coming soon'); }
-        function showSellModal() { showToast('Seller registration coming soon'); }
-        function quickView(id) { showToast(`Quick view for product ${id}`); }
-        function buyNow(id) { addToCart(id); toggleCart(); }
-        function toggleWishlist(id) { showToast(`Added to wishlist: ${id}`); }
-        function toggleChat() { showToast('Live chat coming soon'); }
-        function handleSearch(query) {
-            if (query.length < 2) return;
-            // Implement search suggestions
-        }
-        function showSearchSuggestions() {
-            // Implement search dropdown
-        }
-        function sortProducts(criteria) {
-            showToast(`Sorting by: ${criteria}`);
-            // Implement sorting
-        }
-        function showHome() {
-            renderProducts('all');
-        }
-    </script>
-</body>
-</html>
+        const mockData = {
+            products: [
+                { id: 1, name: 'iPhone 15 Pro', nameAr: 'آيفون 15 برو', price: 1199, stock: 15, category: 'electronics', sales: 234, image: 'https://images.unsplash.com/photo-1696446701796-da61225697cc?w=400' },
+                { id: 2, name: 'Samsung S24', nameAr: 'سامسونج إس 24', price: 999, stock: 8, category: 'electronics', sales: 189, image: 'https://images.unsplash.com/photo-1610945265078-3858a0828671?w=400' },
+                { id: 3, name: 'Nike Air Max', nameAr: 'نايك آير ماكس', price: 189, stock: 45, category: 'fashion', sales: 567, image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400' },
+                { id: 4, name: 'MacBook
